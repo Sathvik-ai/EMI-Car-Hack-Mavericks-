@@ -1,0 +1,135 @@
+<div class="container animate-fade-in" style="padding-top: 40px; padding-bottom: 40px;">
+  
+  <h1 class="text-center">Apply for Premium Car Loan</h1>
+  <p class="text-center mb-4">Experience luxury financing with instant approval.</p>
+
+  <div class="grid grid-cols-2 gap-4" *ngIf="!approvalData">
+    <!-- Application Form -->
+    <div class="glass-card" style="padding: 30px;">
+      <h3 class="mb-4">Loan Details</h3>
+      <form [formGroup]="loanForm" (ngSubmit)="onSubmit()">
+        
+        <div class="mb-4">
+          <label>Car Type</label>
+          <select formControlName="carType" style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
+            <option *ngFor="let type of carTypes" [value]="type">{{ type }}</option>
+          </select>
+          <div *ngIf="ruleMessage" [class]="ruleClass" style="margin-top: 5px; font-size: 0.8rem;">
+            {{ ruleMessage }}
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label>Car Price (₹)</label>
+          <input type="text" appIndianCurrency formControlName="carPrice" placeholder="Ex. 15,00,000">
+          <div *ngIf="submitted && f['carPrice'].errors" class="text-danger small">
+            Car price is required (Min ₹1L).
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label>Monthly Income (₹)</label>
+          <input type="text" appIndianCurrency formControlName="monthlyIncome" placeholder="Ex. 80,000">
+          <div *ngIf="submitted && f['monthlyIncome'].errors" class="text-danger small">
+            Valid income required.
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label>Employment Type</label>
+          <select formControlName="employmentType">
+            <option value="Salaried">Salaried</option>
+            <option value="Self-Employed">Self-Employed</option>
+            <option value="Business">Business Owner</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label>Credit Score (300 - 900)</label>
+          <input type="number" formControlName="creditScore" placeholder="Ex. 750">
+          <div *ngIf="submitted && f['creditScore'].errors" class="text-danger small">
+            Valid credit score required (300-900).
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label>Down Payment (%)</label>
+          <input type="number" formControlName="downPaymentPercent" placeholder="20">
+          <div *ngIf="submitted && f['downPaymentPercent'].errors" class="text-danger small">
+            Min 10% down payment required.
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label>Tenure (Years)</label>
+          <input type="number" formControlName="tenure" placeholder="5">
+          <div *ngIf="submitted && f['tenure'].errors" class="text-danger small">
+            1 to 7 years allowed.
+          </div>
+        </div>
+
+        <button type="submit" class="btn-gold" style="width: 100%; margin-top: 10px;">
+          Check Eligibility & Apply
+        </button>
+
+      </form>
+    </div>
+
+    <!-- Live Preview & Assistant -->
+    <div class="glass-card" style="padding: 30px; display: flex; flex-direction: column; justify-content: center;">
+      <h3 class="text-center" style="color: var(--primary-gold);">Loan Summary</h3>
+      
+      <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <small>Estimated EMI</small>
+          <h1 style="margin: 0;">₹ {{ calculatedEMI | number:'1.0-0' }}</h1>
+          <small class="text-muted">per month</small>
+        </div>
+
+        <div *ngIf="eligibilityStatus" [style.color]="eligibilityStatus.eligible ? 'var(--success-green)' : 'var(--danger-red)'" style="font-weight: bold; margin-bottom: 20px;">
+          {{ eligibilityStatus.eligible ? 'Excellent! You are eligible.' : eligibilityStatus.reason }}
+        </div>
+
+        <!-- Assistant Suggestion (Mock) -->
+        <div class="glass-card" style="padding: 15px; background: rgba(255,255,255,0.03); width: 100%; border-radius: 12px;">
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <div style="width: 30px; height: 30px; background: var(--primary-gold); border-radius: 50%;"></div>
+            <strong>Loan Assistant</strong>
+          </div>
+          <p style="margin: 10px 0 0; font-size: 0.9rem;">
+            "Tip: Increasing your down payment to 25% could save you approx. ₹500 in monthly EMI."
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approval Success Card -->
+  <div *ngIf="approvalData" [@fadeInUp] class="glass-card text-center" style="padding: 50px; max-width: 600px; margin: 0 auto; border-color: var(--primary-gold);">
+    <div style="font-size: 4rem; margin-bottom: 20px;">🎉</div>
+    <h2 style="color: var(--primary-gold);">Loan Approved!</h2>
+    <p>Congratulations! Your car loan application has been provisionally approved.</p>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; margin: 30px 0;">
+      <div>
+        <small>Loan Amount</small>
+        <h4>₹ {{ approvalData.loanAmount | number }}</h4>
+      </div>
+      <div>
+        <small>Interest Rate</small>
+        <h4>{{ approvalData.interestRate }}%</h4>
+      </div>
+      <div>
+        <small>Monthly EMI</small>
+        <h4>₹ {{ approvalData.emiAmount | number }}</h4>
+      </div>
+      <div>
+        <small>Tenure</small>
+        <h4>{{ approvalData.tenure }} Years</h4>
+      </div>
+    </div>
+
+    <button class="btn-gold" routerLink="/dashboard">Go to Dashboard</button>
+  </div>
+
+</div>

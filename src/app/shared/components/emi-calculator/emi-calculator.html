@@ -1,0 +1,64 @@
+<div class="glass-card" style="padding: 30px;">
+  <h3 class="mb-4" style="color: var(--primary-gold);">EMI Calculator</h3>
+
+  <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 40px;">
+    
+    <!-- Inputs -->
+    <div style="display: flex; flex-direction: column; gap: 25px;">
+      
+      <!-- Amount -->
+      <div>
+        <div class="flex justify-between mb-2">
+          <label>Loan Amount</label>
+          <strong>₹ {{ loanAmount | number }}</strong>
+        </div>
+        <input type="range" min="100000" max="10000000" step="50000" [(ngModel)]="loanAmount" (input)="calculate()" style="width: 100%; accent-color: var(--primary-gold);">
+      </div>
+
+      <!-- Interest -->
+      <div>
+        <div class="flex justify-between mb-2">
+          <label>Interest Rate (p.a)</label>
+          <strong>{{ interestRate }}%</strong>
+        </div>
+        <input type="range" min="7" max="18" step="0.1" [(ngModel)]="interestRate" (input)="calculate()" style="width: 100%; accent-color: var(--primary-gold);">
+      </div>
+
+      <!-- Tenure -->
+      <div>
+        <div class="flex justify-between mb-2">
+          <label>Tenure (Years)</label>
+          <strong>{{ tenure }} Years</strong>
+        </div>
+        <input type="range" min="1" max="15" step="1" [(ngModel)]="tenure" (input)="calculate()" style="width: 100%; accent-color: var(--primary-gold);">
+      </div>
+
+    </div>
+
+    <!-- Result / Chart Mock -->
+    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+      
+      <!-- CSS Conic Gradient Donut Chart -->
+      <div [style.background]="'conic-gradient(var(--primary-gold) 0% ' + (loanAmount/totalPayment*100) + '%, rgba(255,255,255,0.1) ' + (loanAmount/totalPayment*100) + '% 100%)'" 
+           style="width: 180px; height: 180px; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative;">
+        <div style="width: 140px; height: 140px; background: #1e1e23; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <small class="text-muted">Monthly EMI</small>
+          <h2 style="margin: 0; color: var(--primary-gold);">₹ {{ emi | number:'1.0-0' }}</h2>
+        </div>
+      </div>
+
+      <div style="margin-top: 20px; width: 100%;">
+        <div class="flex justify-between text-muted" style="margin-bottom: 5px; font-size: 0.9rem;">
+          <span>Principal Amount</span>
+          <span style="color: white;">₹ {{ loanAmount | number }}</span>
+        </div>
+        <div class="flex justify-between text-muted" style="font-size: 0.9rem;">
+          <span>Total Interest</span>
+          <span style="color: white;">₹ {{ totalInterest | number:'1.0-0' }}</span>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>

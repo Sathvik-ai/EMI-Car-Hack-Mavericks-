@@ -1,0 +1,57 @@
+<div class="container animate-fade-in" style="padding-top: 40px; min-height: 80vh;">
+  
+  <div class="flex justify-between items-center mb-4">
+    <h1>Transaction History</h1>
+    <button class="btn-outline" (click)="downloadStatement()">
+      Download Statement ⬇
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="glass-card mb-4" style="padding: 15px; display: flex; gap: 20px; align-items: center;">
+    <span class="text-muted">Filter By:</span>
+    <select [(ngModel)]="filterYear" style="width: auto; background: transparent; border: 1px solid rgba(255,255,255,0.2);">
+      <option value="2026" style="color: black;">2026</option>
+      <option value="2025" style="color: black;">2025</option>
+      <option value="2024" style="color: black;">2024</option>
+    </select>
+  </div>
+
+  <!-- Table -->
+  <div class="glass-card" style="padding: 0; overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse;">
+      <thead style="background: rgba(255,255,255,0.05);">
+        <tr>
+          <th style="padding: 20px; text-align: left; color: var(--primary-gold);">Date</th>
+          <th style="padding: 20px; text-align: left; color: var(--primary-gold);">Transaction ID</th>
+          <th style="padding: 20px; text-align: left; color: var(--primary-gold);">Description</th>
+          <th style="padding: 20px; text-align: left; color: var(--primary-gold);">Method</th>
+          <th style="padding: 20px; text-align: right; color: var(--primary-gold);">Amount</th>
+          <th style="padding: 20px; text-align: center; color: var(--primary-gold);">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let txn of transactions" style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.3s;">
+          <td style="padding: 20px;">{{ txn.date | date:'mediumDate' }}</td>
+          <td style="padding: 20px; font-family: monospace;">{{ txn.id }}</td>
+          <td style="padding: 20px;">{{ txn.type }}</td>
+          <td style="padding: 20px;">{{ txn.method }}</td>
+          <td style="padding: 20px; text-align: right; font-weight: bold;">
+            <span [style.color]="txn.type === 'Loan Disbursement' ? 'var(--success-green)' : 'white'">
+              {{ txn.type === 'Loan Disbursement' ? '+' : '-' }} ₹ {{ txn.amount | number }}
+            </span>
+          </td>
+          <td style="padding: 20px; text-align: center;">
+            <span style="padding: 5px 12px; border-radius: 15px; font-size: 0.8rem; background: rgba(46, 204, 113, 0.15); color: var(--success-green);">
+              {{ txn.status }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div *ngIf="transactions.length === 0" style="padding: 40px; text-align: center; color: var(--text-muted);">
+      No transactions found for this period.
+    </div>
+  </div>
+</div>

@@ -1,0 +1,115 @@
+<div class="hero-section" style="min-height: 90vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; padding-top: 60px;">
+  <!-- Background Decorations -->
+  <div style="position: absolute; top: -10%; right: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(212,175,55,0.15) 0%, transparent 70%); border-radius: 50%;"></div>
+  <div style="position: absolute; bottom: -10%; left: -10%; width: 50vw; height: 50vw; background: radial-gradient(circle, rgba(229,228,226,0.1) 0%, transparent 70%); border-radius: 50%;"></div>
+
+  <div class="container animate-fade-in" style="z-index: 1;">
+    <div class="grid" style="grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;">
+      <div>
+        <div style="margin-bottom: 20px; color: var(--primary-gold); font-weight: bold; letter-spacing: 2px;">AFFORDABLE AUTO FINANCE</div>
+        <h1 style="font-size: 3.5rem; line-height: 1.1; margin-bottom: 20px;">
+          Drive Your Dream<br>
+          <span style="background: linear-gradient(90deg, #D4AF37, #F1C40F); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Car Today.</span>
+        </h1>
+        <p style="font-size: 1.1rem; margin-bottom: 40px; color: var(--secondary-platinum); max-width: 500px;">
+          Experience hassle-free car financing. Instant approvals, affordable interest rates, and a completely digital journey designed for every Indian family.
+        </p>
+        <div style="display: flex; gap: 20px;">
+          <button class="btn-gold" (click)="handleAction('/apply-loan')">Check Eligibility</button>
+          <button class="btn-outline" (click)="handleAction('/dashboard')">Manage Loan</button>
+        </div>
+        
+        <div style="margin-top: 60px; display: flex; gap: 50px;">
+          <div>
+            <h2 style="margin: 0;">15k+</h2>
+            <small class="text-muted">Happy Customers</small>
+          </div>
+          <div>
+            <h2 style="margin: 0;">₹800Cr</h2>
+            <small class="text-muted">Loans Disbursed</small>
+          </div>
+          <div>
+            <h2 style="margin: 0;">24h</h2>
+            <small class="text-muted">Avg Approval Time</small>
+          </div>
+        </div>
+      </div>
+      
+      <div style="position: relative;">
+        <!-- Mock Hero Graphic/Image -->
+        <div style="position: relative;">
+           <img src="https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?auto=format&fit=crop&q=80&w=800" alt="Luxury Car" style="width: 100%; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);">
+           
+           <!-- Floating Card Mockup -->
+           <div class="glass-card" style="position: absolute; bottom: -30px; left: -30px; padding: 20px; min-width: 200px;">
+             <div class="flex items-center gap-4">
+               <div style="width: 10px; height: 10px; background: var(--success-green); border-radius: 50%;"></div>
+               <strong>Loan Approved</strong>
+             </div>
+             <p style="margin: 5px 0 0; font-size: 0.8rem;">Interest Rate: 8.5% p.a</p>
+           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container" style="padding: 100px 20px;">
+  <div class="text-center mb-4">
+    <h2 style="margin-bottom: 10px;">Why Choose LuxeFinance?</h2>
+    <p>We blend technology with premium banking services.</p>
+  </div>
+  
+  <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 50px;">
+    <div class="glass-card" style="padding: 40px; text-align: center; transition: transform 0.3s;">
+      <div style="font-size: 3rem; margin-bottom: 20px;">⚡</div>
+      <h3 style="color: var(--primary-gold);">Instant Approval</h3>
+      <p>Our AI-driven engine approves your loan in minutes, not days. 100% paperless.</p>
+    </div>
+    <div class="glass-card" style="padding: 40px; text-align: center;">
+      <div style="font-size: 3rem; margin-bottom: 20px;">📉</div>
+      <h3 style="color: var(--primary-gold);">Lowest Interest</h3>
+      <p>Rates starting at just 8.5% p.a. for premium profiles with flexible tenure up to 15 years.</p>
+    </div>
+    <div class="glass-card" style="padding: 40px; text-align: center;">
+      <div style="font-size: 3rem; margin-bottom: 20px;">🛡️</div>
+      <h3 style="color: var(--primary-gold);">Secure & Transparent</h3>
+      <p>No hidden charges. 256-bit encryption ensures your financial data is safe.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Featured Cars Section -->
+<div class="container" style="padding: 50px 20px;">
+  <h2 class="text-center mb-4">Popular Choices</h2>
+  <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 30px;">
+    <div class="glass-card" *ngFor="let car of cars" style="padding: 0; overflow: hidden;">
+      <img [src]="car.image" style="width: 100%; height: 200px; object-fit: cover;">
+      <div style="padding: 20px;">
+        <h3>{{ car.model }}</h3>
+        <p style="color: var(--primary-gold);">Starts at {{ car.price }}</p>
+        <button class="btn-outline" style="width: 100%; margin-top: 10px;" (click)="handleAction('/apply-loan')">Get Finance Quote</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Testimonials -->
+<div class="container" style="padding: 100px 20px;">
+  <h2 class="text-center mb-4">Client Experiences</h2>
+  <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap: 30px;">
+    <div class="glass-card" *ngFor="let review of reviews" style="padding: 30px;">
+      <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px;">
+        <img [src]="review.image" style="width: 50px; height: 50px; border-radius: 50%;">
+        <div>
+          <h4 style="margin: 0; font-size: 1rem;">{{ review.name }}</h4>
+          <small class="text-muted">{{ review.role }}</small>
+        </div>
+      </div>
+      <p style="font-style: italic;">"{{ review.text }}"</p>
+      <div style="color: var(--warning-yellow);">
+        <span *ngFor="let star of [1,2,3,4,5]">★</span>
+      </div>
+    </div>
+  </div>
+</div>

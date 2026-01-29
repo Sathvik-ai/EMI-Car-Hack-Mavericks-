@@ -1,0 +1,73 @@
+<div class="container animate-fade-in" style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+  <div class="glass-card" style="padding: 40px; width: 100%; max-width: 450px;">
+    
+    <div class="text-center mb-4">
+      <h2 style="color: var(--primary-gold); margin-bottom: 5px;">Welcome Back</h2>
+      <p>Sign in to your premium finance account</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      
+      <div class="mb-4">
+        <label>Email Address</label>
+        <div style="position: relative;">
+          <input type="email" formControlName="email" placeholder="name@example.com" [ngClass]="{ 'is-invalid': submitted && f['email'].errors }">
+          <!-- Icon placeholder (could be SVG) -->
+          <span style="position: absolute; right: 10px; top: 12px; color: var(--text-muted);">📧</span>
+        </div>
+        <div *ngIf="submitted && f['email'].errors" class="text-danger small" style="color: var(--danger-red); font-size: 0.8rem; margin-top: 5px;">
+          Valid email is required
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label>Password</label>
+        <div style="position: relative;">
+          <input type="password" formControlName="password" placeholder="••••••••">
+          <span style="position: absolute; right: 10px; top: 12px; color: var(--text-muted);">🔒</span>
+        </div>
+        <div *ngIf="submitted && f['password'].errors" class="text-danger small" style="color: var(--danger-red); font-size: 0.8rem; margin-top: 5px;">
+          Password is required
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center mb-4" style="font-size: 0.9rem;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
+          <input type="checkbox" formControlName="rememberMe" style="width: auto;"> Remember me
+        </label>
+        <a href="#" style="color: var(--primary-gold); text-decoration: none;">Forgot Password?</a>
+      </div>
+
+      <button type="submit" class="btn-gold" style="width: 100%;" [disabled]="isLoading">
+        {{ isLoading ? 'Signing In...' : 'Sign In' }}
+      </button>
+
+      <div style="margin-top: 20px; font-size: 0.8rem; color: #888; background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;">
+        <p style="margin-bottom: 5px; color: var(--primary-gold);"><strong>Demo Credentials:</strong></p>
+        <ul style="padding-left: 20px; margin: 0;">
+          <li>suv@luxe.com (SUV)</li>
+          <li>sedan@luxe.com (Sedan)</li>
+          <li>hatch@luxe.com (Hatchback)</li>
+          <li>ev@luxe.com (Electric Vehicle)</li>
+          <li>luxury@luxe.com (Luxury Car)</li>
+          <li>used@luxe.com (Used Car)</li>
+        </ul>
+      </div>
+
+      <div class="text-center mt-4" style="position: relative; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; margin-top: 30px;">
+        <span style="position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #1e1e23; padding: 0 10px; font-size: 0.8rem; color: var(--text-muted);">OR CONTINUE WITH</span>
+        
+        <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+          <button type="button" class="btn-outline" style="flex: 1; padding: 10px;">Google</button>
+          <button type="button" class="btn-outline" style="flex: 1; padding: 10px;">Apple</button>
+        </div>
+
+        <p style="margin-top: 20px; font-size: 0.9rem;">
+          Don't have an account? <a routerLink="/signup" style="color: var(--primary-gold); font-weight: bold;">Sign Up</a>
+        </p>
+      </div>
+
+    </form>
+
+  </div>
+</div>

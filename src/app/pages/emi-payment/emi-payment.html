@@ -1,0 +1,48 @@
+<div class="container animate-fade-in" style="padding-top: 40px;">
+  <div class="glass-card" style="max-width: 500px; margin: 0 auto; padding: 40px;">
+    <h2 class="text-center mb-4">Make Payment</h2>
+    
+    <div style="text-align: center; margin-bottom: 30px;">
+      <small>Total Payable</small>
+      <h1 style="color: var(--primary-gold);">₹ {{ amount | number }}</h1>
+    </div>
+
+    <div class="mb-4">
+      <label>Select Payment Method</label>
+      <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <button 
+          (click)="selectedMethod = 'UPI'" 
+          [class]="selectedMethod === 'UPI' ? 'btn-gold' : 'btn-outline'"
+          style="flex: 1;">
+          UPI
+        </button>
+        <button 
+          (click)="selectedMethod = 'Card'" 
+          [class]="selectedMethod === 'Card' ? 'btn-gold' : 'btn-outline'"
+          style="flex: 1;">
+          Card
+        </button>
+        <button 
+          (click)="selectedMethod = 'NetBanking'" 
+          [class]="selectedMethod === 'NetBanking' ? 'btn-gold' : 'btn-outline'"
+          style="flex: 1;">
+          NetBanking
+        </button>
+      </div>
+    </div>
+
+    <button 
+      (click)="payNow()" 
+      class="btn-gold" 
+      style="width: 100%; height: 50px;"
+      [disabled]="processing">
+      {{ processing ? 'Processing...' : 'Pay Securely' }}
+    </button>
+    
+    <div style="text-align: center; margin-top: 20px;">
+      <small style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+        <span style="color: var(--success-green);">🔒</span> 256-bit Secure Encryption
+      </small>
+    </div>
+  </div>
+</div>

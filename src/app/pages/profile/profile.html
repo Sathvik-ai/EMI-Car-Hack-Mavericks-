@@ -1,0 +1,116 @@
+<div class="container animate-fade-in" style="padding-top: 40px; padding-bottom: 40px;">
+  
+  <div class="flex justify-between items-center mb-4">
+    <h1>My Profile & KYC</h1>
+    <div style="background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">
+      Status: <span style="color: var(--warning-yellow);">Pending Verification</span>
+    </div>
+  </div>
+
+  <div class="glass-card" style="padding: 0; overflow: hidden; max-width: 800px; margin: 0 auto;">
+    
+    <!-- Progress Bar -->
+    <div style="background: rgba(0,0,0,0.2); height: 6px; width: 100%;">
+      <div [style.width.%]="progress" style="height: 100%; background: var(--primary-gold); transition: width 0.5s ease;"></div>
+    </div>
+
+    <div style="display: flex; min-height: 400px;">
+      
+      <!-- Sidebar / Steps -->
+      <div style="width: 250px; background: rgba(0,0,0,0.2); padding: 30px; border-right: 1px solid rgba(255,255,255,0.05);">
+        <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
+          <div style="width: 60px; height: 60px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+            👤
+          </div>
+          <div>
+            <h4 style="margin: 0;">John Doe</h4>
+            <small class="text-muted">+91 98765 43210</small>
+          </div>
+        </div>
+
+        <ul style="list-style: none; padding: 0;">
+          <li [style.color]="currentStep === 1 ? 'var(--primary-gold)' : 'white'" style="margin-bottom: 15px; cursor: default;">1. Personal Details</li>
+          <li [style.color]="currentStep === 2 ? 'var(--primary-gold)' : 'white'" style="margin-bottom: 15px; cursor: default;">2. Address Info</li>
+          <li [style.color]="currentStep === 3 ? 'var(--primary-gold)' : 'white'" style="margin-bottom: 15px; cursor: default;">3. Documents (KYC)</li>
+        </ul>
+      </div>
+
+      <!-- Main Form Area -->
+      <div style="flex: 1; padding: 40px;">
+        <form [formGroup]="kycForm">
+          
+          <!-- Step 1: Personal -->
+          <div *ngIf="currentStep === 1" class="animate-fade-in">
+            <h3 class="mb-4">Personal Information</h3>
+            <div class="mb-4">
+              <label>Date of Birth</label>
+              <input type="date" formControlName="dob">
+            </div>
+            <div class="mb-4">
+              <label>PAN Number</label>
+              <input type="text" formControlName="pan" placeholder="ABCDE1234F" style="text-transform: uppercase;">
+              <small class="text-muted">Required for credit check.</small>
+            </div>
+            <div style="text-align: right; margin-top: 30px;">
+              <button type="button" class="btn-gold" (click)="nextStep()">Next: Address</button>
+            </div>
+          </div>
+
+          <!-- Step 2: Address -->
+          <div *ngIf="currentStep === 2" class="animate-fade-in">
+            <h3 class="mb-4">Residential Address</h3>
+            <div class="mb-4">
+              <label>Address Line 1</label>
+              <input type="text" formControlName="addressLine1" placeholder="Flat No, Building, Street">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="mb-4">
+                <label>City</label>
+                <input type="text" formControlName="city">
+              </div>
+              <div class="mb-4">
+                <label>State</label>
+                <input type="text" formControlName="state">
+              </div>
+            </div>
+            <div class="mb-4">
+              <label>Pincode</label>
+              <input type="text" formControlName="zip" maxlength="6">
+            </div>
+            <div style="margin-top: 30px; display: flex; justify-content: space-between;">
+              <button type="button" class="btn-outline" (click)="prevStep()">Back</button>
+              <button type="button" class="btn-gold" (click)="nextStep()">Next: Documents</button>
+            </div>
+          </div>
+
+          <!-- Step 3: Documents -->
+          <div *ngIf="currentStep === 3" class="animate-fade-in">
+            <h3 class="mb-4">Upload Documents</h3>
+            
+            <div class="mb-4">
+              <label>Driving License Number</label>
+              <input type="text" formControlName="licenseNumber">
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div class="upload-zone" style="border: 2px dashed rgba(255,255,255,0.2); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer;">
+                <span style="font-size: 2rem;">🆔</span>
+                <p>Upload Aadhaar Front</p>
+              </div>
+              <div class="upload-zone" style="border: 2px dashed rgba(255,255,255,0.2); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer;">
+                <span style="font-size: 2rem;">📄</span>
+                <p>Upload Driving License</p>
+              </div>
+            </div>
+
+            <div style="margin-top: 30px; display: flex; justify-content: space-between;">
+              <button type="button" class="btn-outline" (click)="prevStep()">Back</button>
+              <button type="button" class="btn-gold" (click)="saveProfile()">Submit KYC</button>
+            </div>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

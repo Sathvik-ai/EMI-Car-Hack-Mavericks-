@@ -1,0 +1,64 @@
+<div class="container animate-fade-in" style="min-height: 90vh; display: flex; align-items: center; justify-content: center; padding-top: 40px; padding-bottom: 40px;">
+  <div class="glass-card" style="padding: 40px; width: 100%; max-width: 500px;">
+    
+    <div class="text-center mb-4">
+      <h2 style="color: var(--primary-gold); margin-bottom: 5px;">Create Account</h2>
+      <p>Join the circle of premium finance.</p>
+    </div>
+
+    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+      
+      <div class="mb-4">
+        <label>Full Name</label>
+        <input type="text" formControlName="fullName" placeholder="John Doe">
+        <div *ngIf="submitted && f['fullName'].errors" class="text-danger small" style="color: var(--danger-red);">
+          Name is required
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label>Email Address</label>
+        <input type="email" formControlName="email" placeholder="name@example.com">
+        <div *ngIf="submitted && f['email'].errors" class="text-danger small" style="color: var(--danger-red);">
+          Valid email required
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label>Mobile Number (+91)</label>
+        <input type="text" formControlName="mobile" placeholder="9876543210" maxlength="10">
+        <div *ngIf="submitted && f['mobile'].errors" class="text-danger small" style="color: var(--danger-red);">
+          10-digit mobile number required
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="mb-4">
+          <label>Password</label>
+          <input type="password" formControlName="password" placeholder="••••••••">
+          <div *ngIf="submitted && f['password'].errors" class="text-danger small" style="color: var(--danger-red);">
+            Min 8 chars
+          </div>
+        </div>
+        <div class="mb-4">
+          <label>Confirm</label>
+          <input type="password" formControlName="confirmPassword" placeholder="••••••••">
+          <div *ngIf="submitted && signupForm.hasError('mismatch')" class="text-danger small" style="color: var(--danger-red);">
+            Passwords do not match
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-gold" style="width: 100%;" [disabled]="isLoading">
+        {{ isLoading ? 'Creating Account...' : 'Sign Up' }}
+      </button>
+
+      <div class="text-center mt-4">
+        <p style="font-size: 0.9rem;">
+          Already have an account? <a routerLink="/login" style="color: var(--primary-gold); font-weight: bold;">Sign In</a>
+        </p>
+      </div>
+
+    </form>
+  </div>
+</div>

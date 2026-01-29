@@ -1,0 +1,32 @@
+<nav class="glass-card" style="margin: 20px; padding: 15px 30px; border-radius: 50px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 20px; z-index: 1000;">
+  <div class="logo" style="font-size: 1.5rem; font-weight: bold; color: var(--primary-gold); cursor: pointer;" routerLink="/">
+    LUXE<span style="color: white;">FINANCE</span>
+  </div>
+  
+  <div style="display: flex; gap: 30px;">
+    <a routerLink="/home" routerLinkActive="active" style="color: white; text-decoration: none; font-weight: 500;">Home</a>
+    
+    <ng-container *ngIf="isLoggedIn$ | async; else publicLinks">
+      <a routerLink="/apply-loan" routerLinkActive="active" style="color: white; text-decoration: none; font-weight: 500;">Apply Now</a>
+      <a routerLink="/dashboard" routerLinkActive="active" style="color: white; text-decoration: none; font-weight: 500;">Dashboard</a>
+      <a routerLink="/history" routerLinkActive="active" style="color: white; text-decoration: none; font-weight: 500;">History</a>
+    </ng-container>
+
+    <ng-template #publicLinks>
+      <a routerLink="/about" routerLinkActive="active" style="color: white; text-decoration: none; font-weight: 500;">About Us</a>
+      <a routerLink="/contact" routerLinkActive="active" style="color: white; text-decoration: none; font-weight: 500;">Contact Is</a>
+    </ng-template>
+  </div>
+
+  <div style="display: flex; gap: 15px;">
+    <ng-container *ngIf="isLoggedIn$ | async; else authButtons">
+      <button routerLink="/profile" style="background: transparent; border: none; color: white; cursor: pointer; font-weight: 600;">Profile</button>
+      <button (click)="logout()" class="btn-outline" style="padding: 8px 20px; border-radius: 20px; border-color: var(--warning-red);">Logout</button>
+    </ng-container>
+    
+    <ng-template #authButtons>
+      <button routerLink="/login" style="background: transparent; border: none; color: white; cursor: pointer; font-weight: 600;">Sign In</button>
+      <button routerLink="/signup" class="btn-gold" style="padding: 8px 20px; border-radius: 20px;">Get Started</button>
+    </ng-template>
+  </div>
+</nav>
