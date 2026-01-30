@@ -11,8 +11,35 @@ export class Auth {
   
   // Store current user type
   private currentUserType = 'suv'; // default
+  
+  // Store full user object
+  currentUser: any = {
+    name: 'Guest User',
+    email: '',
+    mobile: ''
+  };
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) {
+    if (typeof localStorage !== 'undefined') {
+        const storedUser = localStorage.getItem('currentUser');
+        if (storedUser) {
+            this.currentUser = JSON.parse(storedUser);
+            this.loggedIn.next(true);
+        }
+    }
+  }
+
+  register(userData: any) {
+    this.currentUser = userData;
+    if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('currentUser', JSON.stringify(userData));
+    }
+    this.loggedIn.next(true);
+  }
+
+  getCurrentUser() {
+    return this.currentUser;
+  }
 
   login(email: string) {
     // Determine car type based on email for mock purposes
@@ -21,6 +48,15 @@ export class Auth {
       this.loggedIn.next(true);
       this.router.navigate(['/admin']);
       return;
+    }
+
+    // Try to load user from local storage if email matches, else mock
+    if (this.currentUser.email !== email) {
+         this.currentUser = {
+             name: 'Registered User', 
+             email: email, 
+             mobile: '+91 9876543210'
+         };
     }
 
     if (email.includes('sedan')) {

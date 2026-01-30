@@ -10,11 +10,20 @@ import { Observable } from 'rxjs';
 })
 export class Navbar implements OnInit {
   isLoggedIn$!: Observable<boolean>;
+  userName: string = 'Profile';
 
   constructor(private auth: Auth) {}
 
   ngOnInit() {
     this.isLoggedIn$ = this.auth.isLoggedIn$;
+    
+    // Subscribe to changes or just check periodically/single time
+    this.isLoggedIn$.subscribe(loggedIn => {
+        if (loggedIn) {
+            const user = this.auth.getCurrentUser();
+            this.userName = user && user.name ? user.name.split(' ')[0] : 'Profile';
+        }
+    });
   }
 
   logout() {

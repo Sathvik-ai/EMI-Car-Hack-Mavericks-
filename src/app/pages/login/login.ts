@@ -12,6 +12,7 @@ import { Auth } from '../../core/services/auth';
 export class Login implements OnInit {
   loginForm!: FormGroup;
   submitted = false;
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder, 
@@ -33,10 +34,12 @@ export class Login implements OnInit {
     this.submitted = true;
     if (this.loginForm.invalid) return;
     
+    this.isLoading = true;
     // Simulate API call
     setTimeout(() => {
       // Pass the email to determine user type
       this.auth.login(this.f['email'].value); 
+      this.isLoading = false;
     }, 1500);
   }
 }

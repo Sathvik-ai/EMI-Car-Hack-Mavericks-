@@ -1,0 +1,85 @@
+<div class="dashboard-container animate-fade-in">
+    <!-- Header -->
+    <div class="flex justify-between items-end mb-8">
+      <div>
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Welcome back, <span style="color: var(--primary-gold);">{{ userName }}</span></h1>
+        <p style="color: #888;">Your financial dashboard is ready.</p>
+      </div>
+      <div style="text-align: right;">
+        <div style="font-size: 0.9rem; color: #aaa;">Credit Score</div>
+        <div style="font-size: 2rem; font-weight: bold; color: #4caf50;">785 <span style="font-size: 1rem; color: #aaa;">Excellent</span></div>
+      </div>
+    </div>
+  
+    <!-- Main Stats Grid -->
+    <div class="dashboard-grid">
+      <!-- Pre-Approved Limit -->
+      <div class="glass-card">
+        <div class="flex justify-between items-start">
+          <div class="stat-label">Pre-Approved Limit</div>
+          <i class="fas fa-wallet text-gold"></i>
+        </div>
+        <div class="stat-value">₹ 15,00,000</div>
+        <div style="color: #4caf50; font-size: 0.9rem;">
+          <i class="fas fa-arrow-up"></i> Valid till 31st Dec
+        </div>
+      </div>
+  
+      <!-- Active Loans -->
+      <div class="glass-card">
+        <div class="stat-label">Active Loans</div>
+        <div class="stat-value">0</div>
+        <p style="color: #aaa; font-size: 0.9rem;">No active car loans found.</p>
+        <button class="btn-outline" style="margin-top: 15px; width: 100%; border-color: rgba(255,255,255,0.2);" [routerLink]="['/apply-loan']">Check Eligibility</button>
+      </div>
+  
+      <!-- Next Payment -->
+      <div class="glass-card">
+        <div class="stat-label">Upcoming Payment</div>
+        <div class="stat-value" style="color: white; font-size: 2rem;">--</div>
+        <p style="color: #aaa;">No upcoming payments.</p>
+      </div>
+    </div>
+  
+    <!-- Quick Actions -->
+    <h2 class="mb-4" style="font-weight: 400;">Quick Actions</h2>
+    <div class="quick-links mb-8">
+      <div class="quick-link-item" [routerLink]="['/apply-loan']">
+        <span class="quick-link-icon">🚗</span>
+        Apply New Loan
+      </div>
+      <div class="quick-link-item" [routerLink]="['/calculator']">
+        <span class="quick-link-icon">🖩</span>
+        EMI Calculator
+      </div>
+      <div class="quick-link-item" [routerLink]="['/history']">
+        <span class="quick-link-icon">📜</span>
+        Transaction History
+      </div>
+      <div class="quick-link-item" [routerLink]="['/contact']">
+        <span class="quick-link-icon">🎧</span>
+        Support
+      </div>
+    </div>
+  
+    <!-- Recent Activity / Offers -->
+    <div class="glass-card" style="padding: 0; overflow: hidden;">
+        <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+            <h3 style="margin: 0;">Special Offers for You</h3>
+        </div>
+        <div style="display: flex; gap: 20px; padding: 20px;">
+            <div style="flex: 1; background: linear-gradient(45deg, #1e3a8a, #3b82f6); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;">
+                <h3 style="margin-top: 0;">Zero Processing Fee</h3>
+                <p>On your first car loan application this month.</p>
+                <button style="background: white; color: #1e3a8a; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer;">Claim Now</button>
+                <div style="position: absolute; right: -20px; bottom: -20px; font-size: 8rem; opacity: 0.2;">%</div>
+            </div>
+            <div style="flex: 1; background: linear-gradient(45deg, #713f12, #ca8a04); border-radius: 12px; padding: 20px; position: relative; overflow: hidden;">
+                <h3 style="margin-top: 0;">Interest Rate Drop</h3>
+                <p>Rates starting from 8.5% p.a. for premium sedans.</p>
+                <button style="background: white; color: #713f12; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer;">View Rates</button>
+                <div style="position: absolute; right: -20px; bottom: -20px; font-size: 8rem; opacity: 0.2;">📉</div>
+            </div>
+        </div>
+    </div>
+  </div>

@@ -23,8 +23,9 @@
             👤
           </div>
           <div>
-            <h4 style="margin: 0;">John Doe</h4>
-            <small class="text-muted">+91 98765 43210</small>
+            <h4 style="margin: 0;">{{ userProfile.name }}</h4>
+            <small class="text-muted">{{ userProfile.mobile }}</small>
+            <div style="font-size: 0.8rem; color: #aaa;">{{ userProfile.email }}</div>
           </div>
         </div>
 
@@ -37,7 +38,53 @@
 
       <!-- Main Form Area -->
       <div style="flex: 1; padding: 40px;">
-        <form [formGroup]="kycForm">
+        
+        <!-- Read Only View for Verified Users -->
+        <div *ngIf="isKycVerified" class="animate-fade-in">
+            <h2 class="mb-4" style="color: var(--primary-gold);">KYC Details Verified ✅</h2>
+            <div class="glass-card" style="background: rgba(255,255,255,0.05); padding: 20px;">
+                <div class="mb-4">
+                    <label style="color: #aaa;">Full Name</label>
+                    <div style="font-size: 1.2rem;">{{ userProfile.name }}</div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label style="color: #aaa;">Date of Birth</label>
+                        <div>{{ kycDetails?.dob | date }}</div>
+                    </div>
+                    <div>
+                        <label style="color: #aaa;">PAN Number</label>
+                        <div>{{ kycDetails?.pan }}</div>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label style="color: #aaa;">Address</label>
+                    <div>{{ kycDetails?.addressLine1 }}, {{ kycDetails?.city }}, {{ kycDetails?.state }} - {{ kycDetails?.zip }}</div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                     <div>
+                        <label style="color: #aaa;">Aadhar Card</label>
+                        <div style="color: var(--primary-gold);">{{ kycDetails?.aadhar }}</div>
+                     </div>
+                     <div>
+                        <label style="color: #aaa;">Driving License</label>
+                        <div style="color: var(--primary-gold);">{{ kycDetails?.license }}</div>
+                     </div>
+                </div>
+
+                <div style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                    <p style="color: #aaa; font-size: 0.9rem;">
+                        <span style="color: yellow;">⚠</span> To modify these details, please contact customer support.
+                        <br>
+                        Modifying KYC details requires manual verification to prevent fraud.
+                    </p>
+                    <button class="btn-outline" [routerLink]="['/contact']">Contact Support</button>
+                    <button class="btn-gold" style="float: right;" [routerLink]="['/user-dashboard']">Go to Dashboard</button>
+                </div>
+            </div>
+        </div>
+
+        <form [formGroup]="kycForm" *ngIf="!isKycVerified">
           
           <!-- Step 1: Personal -->
           <div *ngIf="currentStep === 1" class="animate-fade-in">
@@ -93,19 +140,26 @@
             </div>
 
             <div class="grid grid-cols-2 gap-4 mb-4">
-              <div class="upload-zone" style="border: 2px dashed rgba(255,255,255,0.2); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer;">
-                <span style="font-size: 2rem;">🆔</span>
-                <p>Upload Aadhaar Front</p>
+              
+              <input type="file" #aadharInput (change)="onFileSelected($event, 'aadhar')" hidden accept="image/*,.pdf">
+              <div class="upload-zone" (click)="aadharInput.click()" style="border: 2px dashed rgba(255,255,255,0.2); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.3s;" [style.borderColor]="aadharFile ? '#4caf50' : 'rgba(255,255,255,0.2)'">
+                <span style="font-size: 2rem;">{{ aadharFile ? '✅' : '🆔' }}</span>
+                <p>{{ aadharFile ? aadharFile.name : 'Upload Aadhaar Front' }}</p>
               </div>
-              <div class="upload-zone" style="border: 2px dashed rgba(255,255,255,0.2); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer;">
-                <span style="font-size: 2rem;">📄</span>
-                <p>Upload Driving License</p>
+              
+              <input type="file" #licenseInput (change)="onFileSelected($event, 'license')" hidden accept="image/*,.pdf">
+              <div class="upload-zone" (click)="licenseInput.click()" style="border: 2px dashed rgba(255,255,255,0.2); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.3s;" [style.borderColor]="licenseFile ? '#4caf50' : 'rgba(255,255,255,0.2)'">
+                <span style="font-size: 2rem;">{{ licenseFile ? '✅' : '📄' }}</span>
+                <p>{{ licenseFile ? licenseFile.name : 'Upload Driving License' }}</p>
               </div>
+
             </div>
 
             <div style="margin-top: 30px; display: flex; justify-content: space-between;">
               <button type="button" class="btn-outline" (click)="prevStep()">Back</button>
-              <button type="button" class="btn-gold" (click)="saveProfile()">Submit KYC</button>
+              <button type="button" class="btn-gold" (click)="saveProfile()" [disabled]="isLoading">
+                {{ isLoading ? 'Verifying...' : 'Submit KYC' }}
+              </button>
             </div>
           </div>
 

@@ -23,6 +23,8 @@ import { LoanHistory } from './pages/loan-history/loan-history';
 import { IndianCurrency } from './shared/directives/indian-currency';
 import { AboutUs } from './pages/about-us/about-us';
 import { ContactUs } from './pages/contact-us/contact-us';
+// Note: UserDashboard & AdminDashboard are standalone and not imported here in declarations
+import { EmiCalculatorPage } from './pages/emi-calculator-page/emi-calculator-page';
 
 @NgModule({
   declarations: [
@@ -44,7 +46,8 @@ import { ContactUs } from './pages/contact-us/contact-us';
     LoanHistory,
     IndianCurrency,
     AboutUs,
-    ContactUs
+    ContactUs,
+    EmiCalculatorPage
   ],
   imports: [
     BrowserModule,

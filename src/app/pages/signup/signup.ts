@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Auth } from '../../core/services/auth'; // Import Auth
 
 @Component({
   selector: 'app-signup',
@@ -11,10 +12,12 @@ import { Router } from '@angular/router';
 export class Signup implements OnInit {
   signupForm!: FormGroup;
   submitted = false;
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder, 
-    private router: Router
+    private router: Router,
+    private auth: Auth // Inject Auth
   ) { }
 
   ngOnInit(): void {
@@ -40,7 +43,19 @@ export class Signup implements OnInit {
     this.submitted = true;
     if (this.signupForm.invalid) return;
 
+    this.isLoading = true;
+
+    // Save user details
+    const userData = {
+      name: this.f['fullName'].value,
+      email: this.f['email'].value,
+      mobile: this.f['mobile'].value
+    };
+    
+    this.auth.register(userData);
+
     setTimeout(() => {
+      this.isLoading = false;
       this.router.navigate(['/profile']); // Go to KYC after signup
     }, 1500);
   }

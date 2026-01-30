@@ -8,7 +8,7 @@
     
     <ng-container *ngIf="isLoggedIn$ | async; else publicLinks">
       <a routerLink="/apply-loan" routerLinkActive="active" style="color: white; text-decoration: none; font-weight: 500;">Apply Now</a>
-      <a routerLink="/dashboard" routerLinkActive="active" style="color: white; text-decoration: none; font-weight: 500;">Dashboard</a>
+      <a routerLink="/calculator" routerLinkActive="active" style="color: white; text-decoration: none; font-weight: 500;">EMI Calculator</a>
       <a routerLink="/history" routerLinkActive="active" style="color: white; text-decoration: none; font-weight: 500;">History</a>
     </ng-container>
 
@@ -20,7 +20,9 @@
 
   <div style="display: flex; gap: 15px;">
     <ng-container *ngIf="isLoggedIn$ | async; else authButtons">
-      <button routerLink="/profile" style="background: transparent; border: none; color: white; cursor: pointer; font-weight: 600;">Profile</button>
+      <button routerLink="/profile" style="background: transparent; border: none; color: white; cursor: pointer; font-weight: 600;">
+        <span style="margin-right: 5px;">👤</span> {{ userName }}
+      </button>
       <button (click)="logout()" class="btn-outline" style="padding: 8px 20px; border-radius: 20px; border-color: var(--warning-red);">Logout</button>
     </ng-container>
     
