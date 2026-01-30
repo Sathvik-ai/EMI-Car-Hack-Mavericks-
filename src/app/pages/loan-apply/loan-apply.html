@@ -40,8 +40,15 @@
           <select formControlName="employmentType">
             <option value="Salaried">Salaried</option>
             <option value="Self-Employed">Self-Employed</option>
-            <option value="Business">Business Owner</option>
           </select>
+        </div>
+
+        <div class="mb-4">
+          <label>Age (Years)</label>
+          <input type="number" formControlName="userAge" placeholder="Ex. 30">
+          <div *ngIf="submitted && f['userAge'].errors" class="text-danger small">
+            Must be 18+.
+          </div>
         </div>
 
         <div class="mb-4">
@@ -105,7 +112,7 @@
   </div>
 
   <!-- Approval Success Card -->
-  <div *ngIf="approvalData" [@fadeInUp] class="glass-card text-center" style="padding: 50px; max-width: 600px; margin: 0 auto; border-color: var(--primary-gold);">
+  <div *ngIf="approvalData && approvalData.status === 'Approved' && approvalData.details" [@fadeInUp] class="glass-card text-center" style="padding: 50px; max-width: 600px; margin: 0 auto; border-color: var(--primary-gold);">
     <div style="font-size: 4rem; margin-bottom: 20px;">🎉</div>
     <h2 style="color: var(--primary-gold);">Loan Approved!</h2>
     <p>Congratulations! Your car loan application has been provisionally approved.</p>
@@ -113,23 +120,39 @@
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; margin: 30px 0;">
       <div>
         <small>Loan Amount</small>
-        <h4>₹ {{ approvalData.loanAmount | number }}</h4>
+        <h4>₹ {{ approvalData.details.loanAmount | number }}</h4>
       </div>
       <div>
         <small>Interest Rate</small>
-        <h4>{{ approvalData.interestRate }}%</h4>
+        <h4>{{ approvalData.details.interestRate }}%</h4>
       </div>
       <div>
         <small>Monthly EMI</small>
-        <h4>₹ {{ approvalData.emiAmount | number }}</h4>
+        <h4>₹ {{ approvalData.details.monthlyEMI | number }}</h4>
       </div>
       <div>
         <small>Tenure</small>
-        <h4>{{ approvalData.tenure }} Years</h4>
+        <h4>{{ approvalData.details.tenureMonths / 12 }} Years</h4>
+      </div>
+      <div>
+        <small>Total Interest</small>
+        <h4>₹ {{ approvalData.details.totalInterest | number }}</h4>
+      </div>
+      <div>
+        <small>Total Payable</small>
+        <h4>₹ {{ approvalData.details.totalPayable | number }}</h4>
       </div>
     </div>
 
     <button class="btn-gold" routerLink="/dashboard">Go to Dashboard</button>
+  </div>
+  
+  <!-- Rejection Card (Just in case) -->
+  <div *ngIf="approvalData && approvalData.status === 'Rejected'" [@fadeInUp] class="glass-card text-center" style="padding: 50px; max-width: 600px; margin: 0 auto; border-color: var(--danger-red);">
+    <div style="font-size: 4rem; margin-bottom: 20px;">⚠️</div>
+    <h2 style="color: var(--danger-red);">Application Rejected</h2>
+    <p class="text-danger">{{ approvalData.reason }}</p>
+    <button class="btn-gold" (click)="approvalData = null">Try Again</button>
   </div>
 
 </div>

@@ -10,10 +10,12 @@ import { EmiPayment } from './pages/emi-payment/emi-payment';
 import { LoanHistory } from './pages/loan-history/loan-history';
 import { AboutUs } from './pages/about-us/about-us';
 import { ContactUs } from './pages/contact-us/contact-us';
+import { AdminDashboard } from './pages/admin-dashboard/admin-dashboard';
 
 const routes: Routes = [
   { path: '', redirectTo: '/home', pathMatch: 'full' },
   { path: 'home', component: Home },
+  { path: 'admin', component: AdminDashboard },
   { path: 'login', component: Login },
   { path: 'signup', component: Signup },
   { path: 'about', component: AboutUs },

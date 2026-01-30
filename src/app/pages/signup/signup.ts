@@ -11,9 +11,11 @@ import { Router } from '@angular/router';
 export class Signup implements OnInit {
   signupForm!: FormGroup;
   submitted = false;
-  isLoading = false;
 
-  constructor(private fb: FormBuilder, private router: Router) { }
+  constructor(
+    private fb: FormBuilder, 
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     this.signupForm = this.fb.group({
@@ -38,9 +40,7 @@ export class Signup implements OnInit {
     this.submitted = true;
     if (this.signupForm.invalid) return;
 
-    this.isLoading = true;
     setTimeout(() => {
-      this.isLoading = false;
       this.router.navigate(['/profile']); // Go to KYC after signup
     }, 1500);
   }

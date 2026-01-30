@@ -1,1 +1,10 @@
-<p>loader works!</p>
+<div class="loader-overlay" *ngIf="loaderService.isLoading()">
+  <div class="video-container">
+    <video autoplay loop muted playsinline>
+      <source src="Car Running.mp4" type="video/mp4">
+      <!-- Fallback message -->
+      Your browser does not support the video tag.
+    </video>
+    <div class="loading-text">Loading...</div>
+  </div>
+</div>

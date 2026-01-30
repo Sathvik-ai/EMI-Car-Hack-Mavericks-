@@ -12,9 +12,12 @@ import { Auth } from '../../core/services/auth';
 export class Login implements OnInit {
   loginForm!: FormGroup;
   submitted = false;
-  isLoading = false;
 
-  constructor(private fb: FormBuilder, private router: Router, private auth: Auth) { }
+  constructor(
+    private fb: FormBuilder, 
+    private router: Router, 
+    private auth: Auth
+  ) { }
 
   ngOnInit(): void {
     this.loginForm = this.fb.group({
@@ -29,12 +32,9 @@ export class Login implements OnInit {
   onSubmit() {
     this.submitted = true;
     if (this.loginForm.invalid) return;
-
-    this.isLoading = true;
     
     // Simulate API call
     setTimeout(() => {
-      this.isLoading = false;
       // Pass the email to determine user type
       this.auth.login(this.f['email'].value); 
     }, 1500);

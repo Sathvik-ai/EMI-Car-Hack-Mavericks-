@@ -16,6 +16,13 @@ export class Auth {
 
   login(email: string) {
     // Determine car type based on email for mock purposes
+    if (email === 'admin@luxe.com') {
+      this.currentUserType = 'admin';
+      this.loggedIn.next(true);
+      this.router.navigate(['/admin']);
+      return;
+    }
+
     if (email.includes('sedan')) {
       this.currentUserType = 'sedan';
     } else if (email.includes('hatch')) {

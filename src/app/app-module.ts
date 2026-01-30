@@ -48,10 +48,10 @@ import { ContactUs } from './pages/contact-us/contact-us';
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
+    BrowserAnimationsModule,
     FormsModule,
     ReactiveFormsModule,
-    BrowserAnimationsModule
+    AppRoutingModule
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
@@ -60,3 +60,4 @@ import { ContactUs } from './pages/contact-us/contact-us';
   bootstrap: [App]
 })
 export class AppModule { }
+

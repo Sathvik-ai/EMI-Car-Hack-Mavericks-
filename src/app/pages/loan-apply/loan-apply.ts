@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { LoanService } from '../../core/services/loan';
+import { EmiService, EmiInput, EmiResult } from '../../core/services/emi';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { CarType } from '../../core/models/loan.model';
 
@@ -23,21 +23,20 @@ export class LoanApply implements OnInit {
   submitted = false;
   eligibilityStatus: { eligible: boolean; reason?: string } | null = null;
   calculatedEMI: number = 0;
-  approvalData: any = null;
+  approvalData: EmiResult | null = null;
   
-  // New props for rules
-  activeRules: any = {};
+  // Rules Feedback
   ruleMessage: string = '';
   ruleClass: string = '';
 
-  carTypes: CarType[] = [
-    'Hatchback', 'Sedan', 'Compact Sedan', 'Compact SUV', 
-    'Mid-Size SUV', 'Full-Size SUV', 'MUV / MPV', 
-    'Electric Vehicle', 'Hybrid', 'Luxury Sedan', 'Luxury SUV', 
-    'Coupe', 'Convertible', 'Commercial', 'Used Car'
+  carTypes: string[] = [
+    'Hatchback', 'Sedan', 'Compact SUV', 
+    'Mid-Size SUV', 'Full-Size SUV', 
+    'Electric Vehicle', 'Luxury Sedan', 'Luxury SUV', 
+    'Coupe', 'Convertible', 'Used Car'
   ];
 
-  constructor(private fb: FormBuilder, private loanService: LoanService) { }
+  constructor(private fb: FormBuilder, private emiService: EmiService) { }
 
   ngOnInit(): void {
     this.loanForm = this.fb.group({
@@ -47,100 +46,117 @@ export class LoanApply implements OnInit {
       employmentType: ['Salaried', Validators.required],
       creditScore: [750, [Validators.required, Validators.min(300), Validators.max(900)]],
       downPaymentPercent: [20, [Validators.required, Validators.min(10), Validators.max(90)]],
-      tenure: [5, [Validators.required, Validators.min(1), Validators.max(15)]]
+      tenure: [5, [Validators.required, Validators.min(1), Validators.max(7)]],
+      userAge: [30, [Validators.required, Validators.min(18)]] // Added Age
     });
 
     this.loanForm.valueChanges.subscribe(() => {
       this.calculateValues();
     });
     
-    this.calculateValues();
+    // Initial Calc
+    setTimeout(() => this.calculateValues(), 100);
   }
 
   get f() { return this.loanForm.controls; }
+
+  mapCarType(type: string): EmiInput['carType'] {
+    if (type.includes('Hatchback')) return 'Hatchback';
+    if (type.includes('Sedan') || type.includes('Compact SUV')) return 'Sedan';
+    if (type.includes('SUV')) return 'SUV'; // Mid/Full
+    if (type.includes('Electric')) return 'EV';
+    if (type.includes('Luxury') || type.includes('Coupe') || type.includes('Convertible')) return 'Luxury';
+    if (type.includes('Used')) return 'Used';
+    return 'Hatchback'; // Default
+  }
+
+  // Helper to pick a valid rate for the simulation (Bank Logic)
+  getStandardInterestRate(carType: string, score: number): number {
+    let base = 10.0;
+    // Credit Score Discount
+    if (score >= 750) base -= 0.5;
+    else if (score < 650) base += 2.0;
+
+    // Car Type Adjustments (to stay within ranges defined in EmiService)
+    const mappedType = this.mapCarType(carType);
+    switch (mappedType) {
+      case 'Hatchback': return Math.max(8.5, Math.min(10.5, base));
+      case 'Sedan': return Math.max(9, Math.min(11.5, base + 0.5));
+      case 'SUV': return Math.max(9.5, Math.min(12, base + 1.0));
+      case 'Luxury': return Math.max(10.5, Math.min(13, base + 2.0));
+      case 'EV': return 10.0; // Fixed base, service will discount it
+      case 'Used': return Math.max(11, Math.min(14, base + 3.0));
+      default: return 10.0;
+    }
+  }
 
   calculateValues() {
     if (this.loanForm.invalid) return;
 
     const val = this.loanForm.value;
+    const downPaymentAmount = (val.carPrice * val.downPaymentPercent) / 100;
     
-    // Get Rules
-    this.activeRules = this.loanService.getLoanRules(val.carType);
-    this.updateRuleFeedback();
+    const input: EmiInput = {
+      carPrice: val.carPrice,
+      downPayment: downPaymentAmount,
+      monthlyIncome: val.monthlyIncome,
+      employmentType: val.employmentType,
+      creditScore: val.creditScore,
+      carType: this.mapCarType(val.carType),
+      interestRate: this.getStandardInterestRate(val.carType, val.creditScore),
+      tenureYears: val.tenure,
+      userAge: val.userAge,
+      kycStatus: true // Assuming verified for now as form doesn't handle KYC upload
+    };
 
-    // Check Down Payment Rule
-    if (val.downPaymentPercent < this.activeRules.minDownPaymentPct) {
-      this.eligibilityStatus = { eligible: false, reason: `${val.carType} requires minimum ${this.activeRules.minDownPaymentPct}% down payment.` };
-      // Keep calculating EMI but show error
-    }
+    const result = this.emiService.calculateLoan(input);
 
-    const loanAmount = val.carPrice - (val.carPrice * val.downPaymentPercent / 100);
-    
-    // Calculate Interest: Base Score Logic + Car Type Adjustment
-    const scoreBaseRate = this.getInterestRate(val.creditScore);
-    const finalRate = (scoreBaseRate - 9.5) + this.activeRules.baseRate; 
-    // Logic: scoreBaseRate is the rate based on score (e.g. 9.5). 9.5 is standard ref. 
-    // If score is high (8.5), delta is -1. 
-    // Final = (-1) + TypeBase(9.0 for Hatch) = 8.0%.
-    // Effectively we combine both factors.
-    
-    this.calculatedEMI = this.loanService.calculateEMI(loanAmount, finalRate, val.tenure);
-    
-    // Only update eligibility if not already failed by downpayment
-    if (!this.eligibilityStatus || this.eligibilityStatus.eligible) {
-      this.eligibilityStatus = this.loanService.checkEligibility(val.monthlyIncome, val.creditScore, this.calculatedEMI);
-    }
-  }
-
-  updateRuleFeedback() {
-    if (this.activeRules.discount) {
-      this.ruleMessage = `💰 ${this.activeRules.discount}`;
+    if (result.status === 'Approved' && result.details) {
+      this.calculatedEMI = result.details.monthlyEMI;
+      this.eligibilityStatus = { eligible: true };
+      this.ruleMessage = `✅ Eligible! Est. Rate: ${result.details.interestRate}%`;
       this.ruleClass = 'text-success';
-    } else if (this.activeRules.riskFactor.includes('High')) {
-      this.ruleMessage = `⚠️ ${this.activeRules.riskFactor}`;
-      this.ruleClass = 'text-warning';
-    } else if (this.activeRules.minDownPaymentPct > 10) {
-      this.ruleMessage = `ℹ️ Min Down Payment: ${this.activeRules.minDownPaymentPct}%`;
-      this.ruleClass = 'text-info';
     } else {
-      this.ruleMessage = `✅ ${this.activeRules.riskFactor}`;
-      this.ruleClass = 'text-muted';
+      this.calculatedEMI = 0;
+      this.eligibilityStatus = { eligible: false, reason: result.reason };
+      this.ruleMessage = `❌ ${result.reason}`;
+      this.ruleClass = 'text-danger';
     }
-  }
-
-  getInterestRate(score: number): number {
-    if (score >= 800) return 8.5;
-    if (score >= 750) return 9.5;
-    if (score >= 650) return 11.5;
-    return 15.0;
   }
 
   onSubmit() {
     this.submitted = true;
     if (this.loanForm.invalid) return;
+    
+    // Re-run strict calculation
+    this.calculateValues();
 
     if (this.eligibilityStatus && !this.eligibilityStatus.eligible) {
-      return;
+      return; // Do not proceed if logic fails
     }
 
+    // Prepare final object for logic processing
     const val = this.loanForm.value;
-    const loanAmount = val.carPrice - (val.carPrice * val.downPaymentPercent / 100);
-    const finalRate = (this.getInterestRate(val.creditScore) - 9.5) + this.activeRules.baseRate;
-
-    const loanDetails = {
+    const downPaymentAmount = (val.carPrice * val.downPaymentPercent) / 100;
+     const input: EmiInput = {
       carPrice: val.carPrice,
-      loanAmount: loanAmount,
-      interestRate: finalRate,
-      tenure: val.tenure,
-      carType: val.carType
+      downPayment: downPaymentAmount,
+      monthlyIncome: val.monthlyIncome,
+      employmentType: val.employmentType,
+      creditScore: val.creditScore,
+      carType: this.mapCarType(val.carType),
+      interestRate: this.getStandardInterestRate(val.carType, val.creditScore),
+      tenureYears: val.tenure,
+      userAge: val.userAge,
+      kycStatus: true
     };
 
-    // Simulate API call
+    // Simulate API delay
     setTimeout(() => {
-      this.loanService.applyForLoan(loanDetails).subscribe(res => {
-        this.approvalData = res;
-      });
+       const finalResult = this.emiService.calculateLoan(input);
+       this.approvalData = finalResult;
     }, 1500);
   }
 }
+
 
