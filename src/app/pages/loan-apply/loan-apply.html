@@ -11,7 +11,7 @@
         
         <div class="mb-4">
           <label>Car Type</label>
-          <select formControlName="carType" style="width: 100%; padding: 10px; border-radius: 8px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white;">
+          <select formControlName="carType">
             <option *ngFor="let type of carTypes" [value]="type">{{ type }}</option>
           </select>
           <div *ngIf="ruleMessage" [class]="ruleClass" style="margin-top: 5px; font-size: 0.8rem;">
