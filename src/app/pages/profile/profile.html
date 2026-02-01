@@ -1,25 +1,31 @@
 <div class="container animate-fade-in" style="padding-top: 40px; padding-bottom: 40px;">
-  
+
   <div class="flex justify-between items-center mb-4">
     <h1>My Profile & KYC</h1>
     <div style="background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; font-size: 0.9rem;">
-      Status: <span style="color: var(--warning-yellow);">Pending Verification</span>
+      Status:
+      <span [style.color]="kycStatusLabel === 'Approved' ? 'var(--success-green)' : 'var(--warning-yellow)'">
+        {{ kycStatusLabel }}
+      </span>
     </div>
   </div>
 
   <div class="glass-card" style="padding: 0; overflow: hidden; max-width: 800px; margin: 0 auto;">
-    
+
     <!-- Progress Bar -->
     <div style="background: rgba(0,0,0,0.2); height: 6px; width: 100%;">
-      <div [style.width.%]="progress" style="height: 100%; background: var(--primary-gold); transition: width 0.5s ease;"></div>
+      <div [style.width.%]="progress"
+        style="height: 100%; background: var(--primary-gold); transition: width 0.5s ease;"></div>
     </div>
 
     <div style="display: flex; min-height: 400px;">
-      
+
       <!-- Sidebar / Steps -->
-      <div style="width: 250px; background: rgba(0,0,0,0.2); padding: 30px; border-right: 1px solid rgba(255,255,255,0.05);">
+      <div
+        style="width: 250px; background: rgba(0,0,0,0.2); padding: 30px; border-right: 1px solid rgba(255,255,255,0.05);">
         <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 15px;">
-          <div style="width: 60px; height: 60px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+          <div
+            style="width: 60px; height: 60px; border-radius: 50%; background: #333; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
             👤
           </div>
           <div>
@@ -30,62 +36,66 @@
         </div>
 
         <ul style="list-style: none; padding: 0;">
-          <li [style.color]="currentStep === 1 ? 'var(--primary-gold)' : 'white'" style="margin-bottom: 15px; cursor: default;">1. Personal Details</li>
-          <li [style.color]="currentStep === 2 ? 'var(--primary-gold)' : 'white'" style="margin-bottom: 15px; cursor: default;">2. Address Info</li>
-          <li [style.color]="currentStep === 3 ? 'var(--primary-gold)' : 'white'" style="margin-bottom: 15px; cursor: default;">3. Documents (KYC)</li>
+          <li [style.color]="currentStep === 1 ? 'var(--primary-gold)' : 'white'"
+            style="margin-bottom: 15px; cursor: default;">1. Personal Details</li>
+          <li [style.color]="currentStep === 2 ? 'var(--primary-gold)' : 'white'"
+            style="margin-bottom: 15px; cursor: default;">2. Address Info</li>
+          <li [style.color]="currentStep === 3 ? 'var(--primary-gold)' : 'white'"
+            style="margin-bottom: 15px; cursor: default;">3. Documents (KYC)</li>
         </ul>
       </div>
 
       <!-- Main Form Area -->
       <div style="flex: 1; padding: 40px;">
-        
+
         <!-- Read Only View for Verified Users -->
         <div *ngIf="isKycVerified" class="animate-fade-in">
-            <h2 class="mb-4" style="color: var(--primary-gold);">KYC Details Verified ✅</h2>
-            <div class="glass-card" style="background: rgba(255,255,255,0.05); padding: 20px;">
-                <div class="mb-4">
-                    <label style="color: #aaa;">Full Name</label>
-                    <div style="font-size: 1.2rem;">{{ userProfile.name }}</div>
-                </div>
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label style="color: #aaa;">Date of Birth</label>
-                        <div>{{ kycDetails?.dob | date }}</div>
-                    </div>
-                    <div>
-                        <label style="color: #aaa;">PAN Number</label>
-                        <div>{{ kycDetails?.pan }}</div>
-                    </div>
-                </div>
-                <div class="mb-4">
-                    <label style="color: #aaa;">Address</label>
-                    <div>{{ kycDetails?.addressLine1 }}, {{ kycDetails?.city }}, {{ kycDetails?.state }} - {{ kycDetails?.zip }}</div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                     <div>
-                        <label style="color: #aaa;">Aadhar Card</label>
-                        <div style="color: var(--primary-gold);">{{ kycDetails?.aadhar }}</div>
-                     </div>
-                     <div>
-                        <label style="color: #aaa;">Driving License</label>
-                        <div style="color: var(--primary-gold);">{{ kycDetails?.license }}</div>
-                     </div>
-                </div>
-
-                <div style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
-                    <p style="color: #aaa; font-size: 0.9rem;">
-                        <span style="color: yellow;">⚠</span> To modify these details, please contact customer support.
-                        <br>
-                        Modifying KYC details requires manual verification to prevent fraud.
-                    </p>
-                    <button class="btn-outline" [routerLink]="['/contact']">Contact Support</button>
-                    <button class="btn-gold" style="float: right;" [routerLink]="['/user-dashboard']">Go to Dashboard</button>
-                </div>
+          <h2 class="mb-4" style="color: var(--primary-gold);">KYC Details Verified ✅</h2>
+          <div class="glass-card" style="background: rgba(255,255,255,0.05); padding: 20px;">
+            <div class="mb-4">
+              <label style="color: #aaa;">Full Name</label>
+              <div style="font-size: 1.2rem;">{{ userProfile.name }}</div>
             </div>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label style="color: #aaa;">Date of Birth</label>
+                <div>{{ kycDetails?.dob | date }}</div>
+              </div>
+              <div>
+                <label style="color: #aaa;">PAN Number</label>
+                <div>{{ kycDetails?.pan }}</div>
+              </div>
+            </div>
+            <div class="mb-4">
+              <label style="color: #aaa;">Address</label>
+              <div>{{ kycDetails?.addressLine1 }}, {{ kycDetails?.city }}, {{ kycDetails?.state }} - {{ kycDetails?.zip
+                }}</div>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label style="color: #aaa;">Aadhar Card</label>
+                <div style="color: var(--primary-gold);">{{ kycDetails?.aadhar }}</div>
+              </div>
+              <div>
+                <label style="color: #aaa;">Driving License</label>
+                <div style="color: var(--primary-gold);">{{ kycDetails?.license }}</div>
+              </div>
+            </div>
+
+            <div style="margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+              <p style="color: #aaa; font-size: 0.9rem;">
+                <span style="color: yellow;">⚠</span> To modify these details, please contact customer support.
+                <br>
+                Modifying KYC details requires manual verification to prevent fraud.
+              </p>
+              <button class="btn-outline" [routerLink]="['/contact']">Contact Support</button>
+              <button class="btn-gold" style="float: right;" [routerLink]="['/user-dashboard']">Go to Dashboard</button>
+            </div>
+          </div>
         </div>
 
         <form [formGroup]="kycForm" *ngIf="!isKycVerified">
-          
+
           <!-- Step 1: Personal -->
           <div *ngIf="currentStep === 1" class="animate-fade-in">
             <h3 class="mb-4">Personal Information</h3>
@@ -133,22 +143,27 @@
           <!-- Step 3: Documents -->
           <div *ngIf="currentStep === 3" class="animate-fade-in">
             <h3 class="mb-4">Upload Documents</h3>
-            
+
             <div class="mb-4">
               <label>Driving License Number</label>
               <input type="text" formControlName="licenseNumber">
             </div>
 
             <div class="grid grid-cols-2 gap-4 mb-4">
-              
+
               <input type="file" #aadharInput (change)="onFileSelected($event, 'aadhar')" hidden accept="image/*,.pdf">
-              <div class="upload-zone" (click)="aadharInput.click()" style="border: 2px dashed rgba(255,255,255,0.2); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.3s;" [style.borderColor]="aadharFile ? '#4caf50' : 'rgba(255,255,255,0.2)'">
+              <div class="upload-zone" (click)="aadharInput.click()"
+                style="border: 2px dashed rgba(255,255,255,0.2); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.3s;"
+                [style.borderColor]="aadharFile ? '#4caf50' : 'rgba(255,255,255,0.2)'">
                 <span style="font-size: 2rem;">{{ aadharFile ? '✅' : '🆔' }}</span>
                 <p>{{ aadharFile ? aadharFile.name : 'Upload Aadhaar Front' }}</p>
               </div>
-              
-              <input type="file" #licenseInput (change)="onFileSelected($event, 'license')" hidden accept="image/*,.pdf">
-              <div class="upload-zone" (click)="licenseInput.click()" style="border: 2px dashed rgba(255,255,255,0.2); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.3s;" [style.borderColor]="licenseFile ? '#4caf50' : 'rgba(255,255,255,0.2)'">
+
+              <input type="file" #licenseInput (change)="onFileSelected($event, 'license')" hidden
+                accept="image/*,.pdf">
+              <div class="upload-zone" (click)="licenseInput.click()"
+                style="border: 2px dashed rgba(255,255,255,0.2); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer; transition: all 0.3s;"
+                [style.borderColor]="licenseFile ? '#4caf50' : 'rgba(255,255,255,0.2)'">
                 <span style="font-size: 2rem;">{{ licenseFile ? '✅' : '📄' }}</span>
                 <p>{{ licenseFile ? licenseFile.name : 'Upload Driving License' }}</p>
               </div>

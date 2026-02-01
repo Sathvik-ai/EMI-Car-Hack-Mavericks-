@@ -1,13 +1,14 @@
-<div class="container animate-fade-in" style="min-height: 90vh; display: flex; align-items: center; justify-content: center; padding-top: 40px; padding-bottom: 40px;">
+<div class="container animate-fade-in"
+  style="min-height: 90vh; display: flex; align-items: center; justify-content: center; padding-top: 40px; padding-bottom: 40px;">
   <div class="glass-card" style="padding: 40px; width: 100%; max-width: 500px;">
-    
+
     <div class="text-center mb-4">
       <h2 style="color: var(--primary-gold); margin-bottom: 5px;">Create Account</h2>
       <p>Join the circle of premium finance.</p>
     </div>
 
     <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
-      
+
       <div class="mb-4">
         <label>Full Name</label>
         <input type="text" formControlName="fullName" placeholder="John Doe">
@@ -32,6 +33,25 @@
         </div>
       </div>
 
+      <div class="mb-4">
+        <label>Monthly Income (₹)</label>
+        <input type="number" formControlName="monthlyIncome" placeholder="e.g. 50000">
+        <div *ngIf="submitted && f['monthlyIncome'].errors" class="text-danger small" style="color: var(--danger-red);">
+          <div *ngIf="f['monthlyIncome'].errors['required']">Income is required</div>
+          <div *ngIf="f['monthlyIncome'].errors['min']">Minimum income must be 10,000</div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label>Employment Type</label>
+        <select formControlName="employmentType" class="form-control"
+          style="width: 100%; padding: 10px; border-radius: 8px;">
+          <option value="Salaried">Salaried</option>
+          <option value="Self-Employed">Self-Employed</option>
+          <option value="Business">Business</option>
+        </select>
+      </div>
+
       <div class="grid grid-cols-2 gap-4">
         <div class="mb-4">
           <label>Password</label>
@@ -43,7 +63,8 @@
         <div class="mb-4">
           <label>Confirm</label>
           <input type="password" formControlName="confirmPassword" placeholder="••••••••">
-          <div *ngIf="submitted && signupForm.hasError('mismatch')" class="text-danger small" style="color: var(--danger-red);">
+          <div *ngIf="submitted && signupForm.hasError('mismatch')" class="text-danger small"
+            style="color: var(--danger-red);">
             Passwords do not match
           </div>
         </div>
@@ -55,7 +76,8 @@
 
       <div class="text-center mt-4">
         <p style="font-size: 0.9rem;">
-          Already have an account? <a routerLink="/login" style="color: var(--primary-gold); font-weight: bold;">Sign In</a>
+          Already have an account? <a routerLink="/login" style="color: var(--primary-gold); font-weight: bold;">Sign
+            In</a>
         </p>
       </div>
 

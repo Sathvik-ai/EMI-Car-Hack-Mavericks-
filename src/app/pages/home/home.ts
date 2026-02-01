@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { Auth } from '../../core/services/auth';
+import { AuthService } from '../../core/services/auth';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -36,12 +36,12 @@ export class Home implements OnInit {
   ];
 
   cars = [
-    { model: 'Tata Nexon', price: '₹ 8.15 Lakhs', image: 'https://media.zigcdn.com/media/model/2025/Mar/bumper-1763966057_600x400.jpg' }, 
+    { model: 'Tata Nexon', price: '₹ 8.15 Lakhs', image: 'https://media.zigcdn.com/media/model/2025/Mar/bumper-1763966057_600x400.jpg' },
     { model: 'Hyundai Creta', price: '₹ 10.99 Lakhs', image: 'https://stimg.cardekho.com/images/carexteriorimages/630x420/Hyundai/Creta/7695/1651645683867/front-left-side-47.jpg?imwidth=420&impolicy=resize' },
     { model: 'Maruti Grand Vitara', price: '₹ 10.80 Lakhs', image: 'https://images.timesdrive.in/photo/msid-152865255,thumbsize-447459/152865255.jpg' }
   ];
 
-  constructor(private auth: Auth, private router: Router) {
+  constructor(private auth: AuthService, private router: Router) {
     this.isLoggedIn$ = this.auth.isLoggedIn$;
   }
 

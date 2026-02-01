@@ -2,7 +2,8 @@ import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { BrowserModule, provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
+import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withFetch } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing-module';
 import { App } from './app';
 import { Navbar } from './shared/components/navbar/navbar';
@@ -52,12 +53,14 @@ import { EmiCalculatorPage } from './pages/emi-calculator-page/emi-calculator-pa
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
     AppRoutingModule
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideHttpClient(withFetch()),
     provideClientHydration(withEventReplay()),
   ],
   bootstrap: [App]

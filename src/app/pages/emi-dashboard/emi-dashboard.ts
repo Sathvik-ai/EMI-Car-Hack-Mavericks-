@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Auth } from '../../core/services/auth';
+import { AuthService } from '../../core/services/auth';
 
 @Component({
   selector: 'app-emi-dashboard',
@@ -10,8 +10,8 @@ import { Auth } from '../../core/services/auth';
 export class EmiDashboard implements OnInit {
   activeLoan: any;
   transactions: any[] = [];
-  loanHealth: number = 85; 
-  
+  loanHealth: number = 85;
+
   offers: any[] = [];
 
   // Data mapping for different car types
@@ -159,7 +159,7 @@ export class EmiDashboard implements OnInit {
         carModel: 'Honda Civic (2019)',
         loanAmount: 800000,
         paidAmount: 200000,
-        emiAmount: 28000, 
+        emiAmount: 28000,
         nextDueDate: new Date('2026-02-15'),
         remainingTenure: 24,
         progress: 25,
@@ -175,7 +175,7 @@ export class EmiDashboard implements OnInit {
     }
   };
 
-  constructor(private auth: Auth) { }
+  constructor(private auth: AuthService) { }
 
   ngOnInit(): void {
     const userType = this.auth.getUserType(); // 'suv', 'sedan', or 'hatchback'

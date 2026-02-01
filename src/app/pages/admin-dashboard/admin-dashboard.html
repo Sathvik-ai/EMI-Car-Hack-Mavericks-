@@ -1,5 +1,4 @@
 <div class="admin-container">
-  <!-- Sidebar -->
   <aside class="sidebar">
     <div class="sidebar-header">
       <span style="font-size: 1.8rem;">⚡</span>
@@ -7,96 +6,71 @@
     </div>
     <ul class="nav-links">
       <li class="nav-item" [class.active]="activeTab === 'dashboard'" (click)="setActiveTab('dashboard')">
-        <span class="nav-icon">📊</span>
-        Dashboard
+        <span class="nav-icon">📊</span> Dashboard
       </li>
       <li class="nav-item" [class.active]="activeTab === 'loans'" (click)="setActiveTab('loans')">
-        <span class="nav-icon">💰</span>
-        Loan Management
+        <span class="nav-icon">💰</span> Loans
       </li>
       <li class="nav-item" [class.active]="activeTab === 'users'" (click)="setActiveTab('users')">
-        <span class="nav-icon">👥</span>
-        Users
+        <span class="nav-icon">👥</span> Users
       </li>
       <li class="nav-item" [class.active]="activeTab === 'analytics'" (click)="setActiveTab('analytics')">
-        <span class="nav-icon">📈</span>
-        Analytics
+        <span class="nav-icon">📈</span> Analytics
       </li>
       <li class="nav-item" (click)="logout()">
-        <span class="nav-icon">🚪</span>
-        Logout
+        <span class="nav-icon">🚪</span> Logout
       </li>
     </ul>
   </aside>
 
-  <!-- Main Content -->
   <main class="main-content">
-    
-    <!-- Top Header -->
+
     <header class="header">
       <div>
-        <h1 *ngIf="activeTab === 'dashboard'">Dashboard Overview</h1>
-        <h1 *ngIf="activeTab === 'loans'">Loan Requests</h1>
-        <h1 *ngIf="activeTab === 'users'">User Management</h1>
-        <p style="color: grey;">Welcome back, Admin</p>
+        <h1>{{ activeTab | titlecase }} Overview</h1>
+        <p style="color: grey;">Welcome back, Administrator</p>
       </div>
       <div class="user-profile">
-        <span>Admin User</span>
+        <span>Admin</span>
         <div class="avatar">A</div>
       </div>
     </header>
 
-    <!-- Dashboard View -->
-    <div *ngIf="activeTab === 'dashboard'" class="dashboard-view">
-      <!-- Stats Cards -->
+    <div *ngIf="activeTab === 'dashboard'" class="dashboard-view animate-fade-in">
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-content">
-            <div class="stat-title">Total Loans Disbursed</div>
-            <div class="stat-value">₹4.2 Cr</div>
-            <div class="stat-trend trend-up">
-              <span>↑ 12%</span> since last month
-            </div>
+            <div class="stat-title">Total Disbursed</div>
+            <div class="stat-value">₹{{ stats.totalLoansDisbursed | number }}</div>
           </div>
           <div class="stat-icon icon-money">💸</div>
         </div>
         <div class="stat-card">
           <div class="stat-content">
             <div class="stat-title">Active Users</div>
-            <div class="stat-value">1,245</div>
-            <div class="stat-trend trend-up">
-              <span>↑ 8%</span> new registrations
-            </div>
+            <div class="stat-value">{{ stats.totalActiveUsers }}</div>
           </div>
           <div class="stat-icon icon-users">👥</div>
         </div>
         <div class="stat-card">
           <div class="stat-content">
             <div class="stat-title">Pending Approvals</div>
-            <div class="stat-value">{{ pendingLoansCount }}</div>
-            <div class="stat-trend trend-down">
-              <span>↓ 2%</span> processing time
-            </div>
+            <div class="stat-value">{{ stats.pendingApprovals }}</div>
           </div>
           <div class="stat-icon icon-pending">⏳</div>
         </div>
         <div class="stat-card">
           <div class="stat-content">
-             <div class="stat-title">NPA (Non-Performing)</div>
-             <div class="stat-value">1.8%</div>
-             <div class="stat-trend trend-down">
-               <!-- Down is good for NPA -->
-               <span style="color: var(--success)">↓ 0.5%</span> risk reduction
-             </div>
+            <div class="stat-title">NPA Risk</div>
+            <div class="stat-value">{{ stats.npaPercentage }}%</div>
           </div>
           <div class="stat-icon icon-risk">📉</div>
         </div>
       </div>
 
-      <!-- Recent Activity Table -->
       <div class="data-table-container">
         <div class="table-header">
-          <h3>Recent Loan Applications</h3>
+          <h3>Recent Pending Applications</h3>
           <button class="action-btn status-active" (click)="setActiveTab('loans')">View All</button>
         </div>
         <table>
@@ -106,19 +80,17 @@
               <th>Car Type</th>
               <th>Amount</th>
               <th>Date</th>
-              <th>Status</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let loan of recentLoans">
               <td>{{ loan.applicantName }}</td>
               <td>{{ loan.carType }}</td>
-              <td>₹{{ loan.amount | number }}</td>
-              <td>{{ loan.date | date:'mediumDate' }}</td>
+              <td>₹{{ loan.loanAmount | number }}</td>
+              <td>{{ loan.applicationDate | date }}</td>
               <td>
-                <span class="status-badge" [ngClass]="'status-' + loan.status.toLowerCase()">
-                  {{ loan.status }}
-                </span>
+                <button class="action-btn btn-approve small" (click)="approveLoan(loan.loanId)">✓</button>
               </td>
             </tr>
           </tbody>
@@ -126,46 +98,41 @@
       </div>
     </div>
 
-    <!-- Loan Management View -->
-    <div *ngIf="activeTab === 'loans'" class="loans-view">
+    <div *ngIf="activeTab === 'loans'" class="loans-view animate-fade-in">
       <div class="data-table-container">
-        <div class="table-header">
-          <h3>Manage Loan Requests</h3>
-          <input type="text" placeholder="Search loans..." style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-        </div>
+        <h3>Manage Loan Requests</h3>
         <table>
           <thead>
             <tr>
               <th>ID</th>
               <th>Applicant</th>
-              <th>Car Type</th>
-              <th>Loan Amount</th>
-              <th>Risk Score</th>
-              <th>Credit Score</th>
+              <th>Car</th>
+              <th>Amount</th>
+              <th>Risk</th>
+              <th>Score</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let loan of allLoans">
-              <td>#{{ loan.id }}</td>
+              <td>#{{ loan.loanId }}</td>
               <td>
                 <div style="font-weight: 500;">{{ loan.applicantName }}</div>
                 <div style="font-size: 0.8em; color: gray;">{{ loan.email }}</div>
               </td>
               <td>{{ loan.carType }}</td>
-              <td>₹{{ loan.amount | number }}</td>
-              <td>
-                <span [style.color]="getRiskColor(loan.risk)">{{ loan.risk }}</span>
-              </td>
+              <td>₹{{ loan.loanAmount | number }}</td>
+              <td><span [style.color]="getRiskColor(loan.riskCategory)">{{ loan.riskCategory }}</span></td>
               <td>{{ loan.creditScore }}</td>
               <td>
-                <div *ngIf="loan.status === 'Pending'">
-                  <button class="action-btn btn-approve" (click)="approveLoan(loan.id)">Approve</button>
-                  <button class="action-btn btn-reject" (click)="rejectLoan(loan.id)">Reject</button>
+                <span class="status-badge" [ngClass]="'status-' + loan.status.toLowerCase()">{{ loan.status }}</span>
+              </td>
+              <td>
+                <div *ngIf="loan.status === 'Pending'" style="display: flex; gap: 5px;">
+                  <button class="action-btn btn-approve" (click)="approveLoan(loan.loanId)">Approve</button>
+                  <button class="action-btn btn-reject" (click)="rejectLoan(loan.loanId)">Reject</button>
                 </div>
-                <span *ngIf="loan.status !== 'Pending'" class="status-badge" [ngClass]="'status-' + loan.status.toLowerCase()">
-                  {{ loan.status }}
-                </span>
               </td>
             </tr>
           </tbody>
@@ -173,78 +140,102 @@
       </div>
     </div>
 
-    <!-- User Management View -->
-    <div *ngIf="activeTab === 'users'" class="users-view">
+    <div *ngIf="activeTab === 'users'" class="users-view animate-fade-in">
       <div class="data-table-container">
         <h3>User Directory</h3>
-         <table>
+        <table>
           <thead>
             <tr>
               <th>Name</th>
               <th>Email</th>
-              <th>Phone</th>
+              <th>Joined</th>
               <th>KYC Status</th>
-              <th>Joined Date</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
-             <tr *ngFor="let user of users">
-               <td>{{user.name}}</td>
-               <td>{{user.email}}</td>
-               <td>{{user.phone}}</td>
-               <td>
-                 <span class="status-badge" [ngClass]="user.kycStatus === 'Verified' ? 'status-approved' : 'status-pending'">
-                   {{user.kycStatus}}
-                 </span>
-               </td>
-               <td>{{user.joinedDate | date}}</td>
-             </tr>
+            <tr *ngFor="let user of users">
+              <td>{{ user.fullName }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.registrationDate | date }}</td>
+              <td>
+                <span class="status-badge"
+                  [ngClass]="user.kycStatus === 'Verified' ? 'status-approved' : 'status-pending'">
+                  {{ user.kycStatus }}
+                </span>
+              </td>
+              <td>
+                <button *ngIf="user.kycStatus !== 'Verified'" class="action-btn status-active"
+                  (click)="viewUserDocuments(user)">
+                  Verify Docs
+                </button>
+              </td>
+            </tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- Analytics View -->
-    <div *ngIf="activeTab === 'analytics'" class="analytics-view">
-      <h3>Financial Analytics & Trends</h3>
-      
+    <div *ngIf="activeTab === 'analytics'" class="analytics-view animate-fade-in">
+      <h3>Financial Analytics</h3>
       <div class="analytics-grid">
-        <!-- Vertical Bar Chart: Monthly Revenue -->
         <div class="chart-card">
-          <h3>Monthly Disbursals (in Cr)</h3>
+          <h3>Monthly Disbursals (Cr)</h3>
           <div class="bar-chart">
             <div class="bar-group" *ngFor="let item of analyticsData.monthlyRevenue">
-              <!-- Stacked Bar Container -->
-              <div class="stacked-bar" [style.height]="item.height" [attr.data-value]="'₹' + item.value + 'Cr'">
-                <!-- Segments -->
-                <div *ngFor="let segment of item.breakdown" 
-                     class="bar-segment" 
-                     [style.height]="segment.height"
-                     [style.background-color]="getSegmentColor(segment.type)"
-                     [title]="segment.type.toUpperCase() + ': ' + segment.height">
-                </div>
-              </div>
+              <div class="stacked-bar" [style.height]="item.height" [title]="item.value + ' Cr'"></div>
               <span class="bar-label">{{ item.month }}</span>
             </div>
           </div>
         </div>
-
-        <!-- Horizontal Bar Chart: Car Type Distribution -->
         <div class="chart-card">
           <h3>Car Type Distribution</h3>
           <div class="h-chart-item" *ngFor="let item of analyticsData.carTypeDistribution">
             <div class="h-chart-label">
-              <span [style.color]="item.color" style="font-weight: bold;">{{ item.type }}</span>
-              <span>{{ item.count }} Applications</span>
+              <span [style.color]="item.color">{{ item.type }}</span>
+              <span>{{ item.count }} Apps</span>
             </div>
             <div class="h-bar-bg">
-              <div class="h-bar-fill" [style.width]="item.width" [style.background]="item.color" [style.box-shadow]="'0 0 10px ' + item.color + '66'"></div>
+              <div class="h-bar-fill" [style.width]="item.width" [style.background]="item.color"></div>
             </div>
           </div>
         </div>
-
       </div>
     </div>
 
   </main>
+
+  <div class="modal-backdrop" *ngIf="showKycModal">
+    <div class="glass-card modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3>Verify Docs: {{ selectedUserName }}</h3>
+        <button class="action-btn btn-reject" (click)="closeModal()">X</button>
+      </div>
+
+      <div *ngIf="selectedUserDocs.length === 0" class="text-center">
+        <p>No documents uploaded yet.</p>
+      </div>
+
+      <div class="doc-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div *ngFor="let doc of selectedUserDocs" class="glass-card" style="padding: 15px;">
+          <div style="font-weight: bold;">{{ doc.documentType }}</div>
+          <div style="font-size: 0.8em; color: #aaa; margin-bottom: 10px;">{{ doc.documentNumber }}</div>
+
+          <div
+            style="background: rgba(255,255,255,0.1); height: 100px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+            📄 File Preview
+          </div>
+
+          <div *ngIf="doc.isVerified" style="color: var(--success-green); text-align: center;">
+            ✅ Verified
+          </div>
+          <button *ngIf="!doc.isVerified" class="action-btn btn-approve" style="width: 100%;"
+            (click)="verifyDocument(doc.documentId)">
+            Verify
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>

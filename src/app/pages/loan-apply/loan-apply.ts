@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { EmiService, EmiInput, EmiResult } from '../../core/services/emi';
+import { LoanService } from '../../core/services/loan';
+import { AuthService } from '../../core/services/auth';
 import { trigger, transition, style, animate } from '@angular/animations';
-import { CarType } from '../../core/models/loan.model';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import { LoanApplicationDto, EmiCalculationDto, EligibilityCheckDto } from '../../core/models/loan.model';
 
 @Component({
   selector: 'app-loan-apply',
@@ -21,142 +23,180 @@ import { CarType } from '../../core/models/loan.model';
 export class LoanApply implements OnInit {
   loanForm!: FormGroup;
   submitted = false;
-  eligibilityStatus: { eligible: boolean; reason?: string } | null = null;
+  isLoading = false;
+
   calculatedEMI: number = 0;
-  approvalData: EmiResult | null = null;
-  
-  // Rules Feedback
+  currentInterestRate: number = 0;
+
+  eligibilityResult: EligibilityCheckDto | null = null;
+  approvalData: any = null;
+
   ruleMessage: string = '';
   ruleClass: string = '';
 
+  // Dropdown Labels
   carTypes: string[] = [
-    'Hatchback', 'Sedan', 'Compact SUV', 
-    'Mid-Size SUV', 'Full-Size SUV', 
-    'Electric Vehicle', 'Luxury Sedan', 'Luxury SUV', 
-    'Coupe', 'Convertible', 'Used Car'
+    'Hatchback', 'Sedan', 'SUV',
+    'Luxury', 'Electric', 'Commercial'
   ];
 
-  constructor(private fb: FormBuilder, private emiService: EmiService) { }
+  // FIX: Mapping Strings to C# Enum Integers
+  // (IMPORTANT: Ensure these numbers match your C# 'CarType' Enum file exactly!)
+  carTypeMap: { [key: string]: number } = {
+    'Hatchback': 0,
+    'Sedan': 1,
+    'SUV': 2,
+    'Luxury': 3, // Assuming Luxury is 3. If "Sports" is 3, change this!
+    'Electric': 4,
+    'Commercial': 5
+  };
+
+  constructor(
+    private fb: FormBuilder,
+    private loanService: LoanService,
+    private auth: AuthService
+  ) { }
 
   ngOnInit(): void {
     this.loanForm = this.fb.group({
       carType: ['Hatchback', Validators.required],
-      carPrice: [1000000, [Validators.required, Validators.min(100000)]],
-      monthlyIncome: [50000, [Validators.required, Validators.min(10000)]],
+      carPrice: [1000000, [Validators.required, Validators.min(100000), Validators.max(100000000)]],
+      monthlyIncome: [50000, [Validators.required, Validators.min(10000), Validators.max(10000000)]],
       employmentType: ['Salaried', Validators.required],
       creditScore: [750, [Validators.required, Validators.min(300), Validators.max(900)]],
       downPaymentPercent: [20, [Validators.required, Validators.min(10), Validators.max(90)]],
-      tenure: [5, [Validators.required, Validators.min(1), Validators.max(7)]],
-      userAge: [30, [Validators.required, Validators.min(18)]] // Added Age
+      tenure: [5, [Validators.required, Validators.min(1), Validators.max(15)]],
+      userAge: [30, [Validators.required, Validators.min(18), Validators.max(100)]]
     });
 
-    this.loanForm.valueChanges.subscribe(() => {
-      this.calculateValues();
+    // 1. Fetch Rules (String is usually fine for GET URLs)
+    this.loanForm.get('carType')?.valueChanges.subscribe(type => {
+      this.fetchLoanRules(type);
     });
-    
-    // Initial Calc
-    setTimeout(() => this.calculateValues(), 100);
+
+    // 2. Live EMI
+    this.loanForm.valueChanges.pipe(
+      debounceTime(500),
+      distinctUntilChanged()
+    ).subscribe(() => {
+      this.calculateLiveEMI();
+    });
+
+    this.fetchLoanRules('Hatchback');
   }
 
   get f() { return this.loanForm.controls; }
 
-  mapCarType(type: string): EmiInput['carType'] {
-    if (type.includes('Hatchback')) return 'Hatchback';
-    if (type.includes('Sedan') || type.includes('Compact SUV')) return 'Sedan';
-    if (type.includes('SUV')) return 'SUV'; // Mid/Full
-    if (type.includes('Electric')) return 'EV';
-    if (type.includes('Luxury') || type.includes('Coupe') || type.includes('Convertible')) return 'Luxury';
-    if (type.includes('Used')) return 'Used';
-    return 'Hatchback'; // Default
+  // --- API 1: Get Rules ---
+  fetchLoanRules(carType: string) {
+    // We try sending the String name in the URL. 
+    // If this fails with 400, change it to: this.carTypeMap[carType]
+    this.loanService.getLoanRules(carType).subscribe({
+      next: (rules) => {
+        if (rules) {
+          this.currentInterestRate = rules.baseRate;
+          this.ruleMessage = `ℹ️ Base Rate: ${rules.baseRate}% | ${rules.riskFactor}`;
+          this.ruleClass = 'text-info';
+          this.calculateLiveEMI();
+        }
+      },
+      error: (err) => console.error('Failed to fetch rules', err)
+    });
   }
 
-  // Helper to pick a valid rate for the simulation (Bank Logic)
-  getStandardInterestRate(carType: string, score: number): number {
-    let base = 10.0;
-    // Credit Score Discount
-    if (score >= 750) base -= 0.5;
-    else if (score < 650) base += 2.0;
-
-    // Car Type Adjustments (to stay within ranges defined in EmiService)
-    const mappedType = this.mapCarType(carType);
-    switch (mappedType) {
-      case 'Hatchback': return Math.max(8.5, Math.min(10.5, base));
-      case 'Sedan': return Math.max(9, Math.min(11.5, base + 0.5));
-      case 'SUV': return Math.max(9.5, Math.min(12, base + 1.0));
-      case 'Luxury': return Math.max(10.5, Math.min(13, base + 2.0));
-      case 'EV': return 10.0; // Fixed base, service will discount it
-      case 'Used': return Math.max(11, Math.min(14, base + 3.0));
-      default: return 10.0;
-    }
-  }
-
-  calculateValues() {
-    if (this.loanForm.invalid) return;
+  // --- API 2: Calculate EMI ---
+  calculateLiveEMI() {
+    if (this.loanForm.invalid || this.currentInterestRate === 0) return;
 
     const val = this.loanForm.value;
-    const downPaymentAmount = (val.carPrice * val.downPaymentPercent) / 100;
-    
-    const input: EmiInput = {
-      carPrice: val.carPrice,
-      downPayment: downPaymentAmount,
-      monthlyIncome: val.monthlyIncome,
-      employmentType: val.employmentType,
-      creditScore: val.creditScore,
-      carType: this.mapCarType(val.carType),
-      interestRate: this.getStandardInterestRate(val.carType, val.creditScore),
-      tenureYears: val.tenure,
-      userAge: val.userAge,
-      kycStatus: true // Assuming verified for now as form doesn't handle KYC upload
+    const principalAmount = val.carPrice * (1 - (val.downPaymentPercent / 100));
+
+    const emiDto: EmiCalculationDto = {
+      principal: principalAmount,
+      rate: this.currentInterestRate,
+      tenure: val.tenure
     };
 
-    const result = this.emiService.calculateLoan(input);
-
-    if (result.status === 'Approved' && result.details) {
-      this.calculatedEMI = result.details.monthlyEMI;
-      this.eligibilityStatus = { eligible: true };
-      this.ruleMessage = `✅ Eligible! Est. Rate: ${result.details.interestRate}%`;
-      this.ruleClass = 'text-success';
-    } else {
-      this.calculatedEMI = 0;
-      this.eligibilityStatus = { eligible: false, reason: result.reason };
-      this.ruleMessage = `❌ ${result.reason}`;
-      this.ruleClass = 'text-danger';
-    }
+    this.loanService.calculateEmi(emiDto).subscribe({
+      next: (emi) => this.calculatedEMI = emi,
+      error: () => this.calculatedEMI = 0
+    });
   }
 
+  // --- SUBMIT ---
   onSubmit() {
     this.submitted = true;
     if (this.loanForm.invalid) return;
-    
-    // Re-run strict calculation
-    this.calculateValues();
 
-    if (this.eligibilityStatus && !this.eligibilityStatus.eligible) {
-      return; // Do not proceed if logic fails
+    this.isLoading = true;
+    const currentUser = this.auth.getCurrentUser();
+
+    if (!currentUser || !currentUser.id) {
+      alert("Session invalid. Please login again.");
+      this.isLoading = false;
+      return;
     }
 
-    // Prepare final object for logic processing
-    const val = this.loanForm.value;
-    const downPaymentAmount = (val.carPrice * val.downPaymentPercent) / 100;
-     const input: EmiInput = {
-      carPrice: val.carPrice,
-      downPayment: downPaymentAmount,
-      monthlyIncome: val.monthlyIncome,
-      employmentType: val.employmentType,
-      creditScore: val.creditScore,
-      carType: this.mapCarType(val.carType),
-      interestRate: this.getStandardInterestRate(val.carType, val.creditScore),
-      tenureYears: val.tenure,
-      userAge: val.userAge,
-      kycStatus: true
+    // FIX: Convert the String "Hatchback" to Integer 0 using our Map
+    const selectedTypeStr = this.loanForm.get('carType')?.value;
+    const carTypeEnumInt = this.carTypeMap[selectedTypeStr];
+
+    const appData: LoanApplicationDto = {
+      userId: currentUser.id,
+      // @ts-ignore - We are forcing it to be a number for the backend
+      carType: carTypeEnumInt,
+      carPrice: this.loanForm.get('carPrice')?.value,
+      monthlyIncome: this.loanForm.get('monthlyIncome')?.value,
+      employmentType: this.loanForm.get('employmentType')?.value,
+      creditScore: this.loanForm.get('creditScore')?.value,
+      downPaymentPercent: this.loanForm.get('downPaymentPercent')?.value,
+      tenure: this.loanForm.get('tenure')?.value,
+      userAge: this.loanForm.get('userAge')?.value
     };
 
-    // Simulate API delay
-    setTimeout(() => {
-       const finalResult = this.emiService.calculateLoan(input);
-       this.approvalData = finalResult;
-    }, 1500);
+    // --- API 3: Check Eligibility ---
+    this.loanService.checkEligibility(appData).subscribe({
+      next: (result) => {
+        if (result.eligible) {
+          this.eligibilityResult = result;
+          this.finalApply(appData);
+        } else {
+          this.isLoading = false;
+          this.eligibilityResult = result;
+          this.approvalData = { status: 'Rejected', reason: result.reason };
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        console.error("Eligibility Error:", err);
+        // Show detailed error if available
+        const msg = err.error?.errors?.['$.carType']
+          ? "Invalid Car Type sent to server."
+          : (err.error?.message || "Eligibility Check Failed");
+        alert(msg);
+      }
+    });
+  }
+
+  // --- API 4: Final Apply ---
+  finalApply(data: LoanApplicationDto) {
+    this.loanService.applyForLoan(data).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        if (res.success) {
+          this.approvalData = {
+            status: 'Approved',
+            details: res.data
+          };
+        }
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.approvalData = {
+          status: 'Rejected',
+          reason: err.error?.message || 'Application Failed'
+        };
+      }
+    });
   }
 }
-
-

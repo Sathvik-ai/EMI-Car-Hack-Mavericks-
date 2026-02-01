@@ -1,94 +1,72 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { Loan, CarType } from '../models/loan.model';
+import { HttpClient, HttpHeaders } from '@angular/common/http'; // Added HttpHeaders
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import {
+  LoanApplicationDto,
+  EmiCalculationDto,
+  LoanRuleDto,
+  EligibilityCheckDto,
+  ApiResponseDto
+} from '../models/loan.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LoanService {
+  // Ensure this matches your running Swagger port
+  private apiUrl = 'https://localhost:7041/api/Loan';
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
-  getLoanRules(carType: CarType): { baseRate: number; minDownPaymentPct: number; riskFactor: string; discount?: string } {
-    let rules = {
-      baseRate: 9.5, // Standard base rate
-      minDownPaymentPct: 10,
-      riskFactor: 'Low',
-      discount: ''
-    };
+  // --- HELPER: Create Headers with Token ---
+  private getHeaders(): HttpHeaders {
+    // Get the token directly from storage
+    const token = localStorage.getItem('token');
 
-    switch (carType) {
-      case 'Hatchback':
-        rules.baseRate = 9.0; // Lower rate
-        rules.riskFactor = 'Low - Best for First Time Buyers';
-        break;
-      
-      case 'Electric Vehicle':
-      case 'Hybrid':
-        rules.baseRate = 8.5; // Green Discount
-        rules.discount = 'Green Loan (1% Off applied)';
-        break;
-
-      case 'Mid-Size SUV':
-      case 'Full-Size SUV':
-      case 'Luxury Sedan':
-      case 'Luxury SUV':
-      case 'Convertible':
-        rules.minDownPaymentPct = 20; // Higher down payment
-        rules.riskFactor = 'Moderate - Higher Down Payment Required';
-        break;
-
-      case 'Used Car':
-        rules.baseRate = 11.5; // Higher risk
-        rules.riskFactor = 'High - Short Tenure Recommended';
-        break;
-
-      case 'Commercial':
-        rules.baseRate = 12.0;
-        rules.minDownPaymentPct = 25;
-        break;
+    // Create headers with the Authorization Bearer token
+    let headers = new HttpHeaders();
+    if (token) {
+      headers = headers.set('Authorization', `Bearer ${token}`);
     }
-
-    return rules;
+    return headers;
   }
 
-  calculateEMI(principal: number, rate: number, tenureYears: number): number {
-    const monthlyRate = rate / 12 / 100;
-    const months = tenureYears * 12;
-    if (monthlyRate === 0) return principal / months;
-    
-    const emi = (principal * monthlyRate * Math.pow(1 + monthlyRate, months)) / (Math.pow(1 + monthlyRate, months) - 1);
-    return Math.round(emi);
+  // 1. GET Rules
+  getLoanRules(carType: string): Observable<LoanRuleDto> {
+    // Pass { headers: this.getHeaders() }
+    return this.http.get<ApiResponseDto<LoanRuleDto>>(`${this.apiUrl}/rules/${carType}`, { headers: this.getHeaders() }).pipe(
+      map(res => res.data)
+    );
   }
 
-  checkEligibility(income: number, creditScore: number, paramEMI: number): { eligible: boolean; reason?: string } {
-    if (creditScore < 650) {
-      return { eligible: false, reason: 'Credit Score too low. Minimum 650 required.' };
-    }
-    
-    // Max EMI should not exceed 40% of income
-    const maxEMI = income * 0.40;
-    if (paramEMI > maxEMI) {
-      return { eligible: false, reason: `EMI (₹${paramEMI}) exceeds 40% of monthly income.` };
-    }
-
-    return { eligible: true };
+  // 2. POST Calculate EMI
+  calculateEmi(data: EmiCalculationDto): Observable<number> {
+    return this.http.post<ApiResponseDto<number>>(`${this.apiUrl}/calculate-emi`, data, { headers: this.getHeaders() }).pipe(
+      map(res => res.data)
+    );
   }
 
-  applyForLoan(loanDetails: any): Observable<Loan> {
-    // Mock API response
-    const emi = this.calculateEMI(loanDetails.loanAmount, loanDetails.interestRate, loanDetails.tenure);
-    const loan: Loan = {
-      loanId: Math.floor(Math.random() * 10000),
-      carPrice: loanDetails.carPrice,
-      loanAmount: loanDetails.loanAmount,
-      interestRate: loanDetails.interestRate,
-      tenure: loanDetails.tenure,
-      emiAmount: emi,
-      status: 'Approved',
-      remainingEmis: loanDetails.tenure * 12,
-      nextDueDate: new Date(new Date().setMonth(new Date().getMonth() + 1))
-    };
-    return of(loan); // Simulate async
+  // 3. POST Check Eligibility
+  // 3. POST Check Eligibility (Updated to handle different response formats)
+  checkEligibility(data: LoanApplicationDto): Observable<EligibilityCheckDto> {
+    return this.http.post<any>(`${this.apiUrl}/check-eligibility`, data, { headers: this.getHeaders() }).pipe(
+      map(response => {
+        console.log("Raw Eligibility Response:", response); // Debug log
+
+        // Case 1: The backend wrapped it in 'data' (ApiResponseDto)
+        if (response && response.data) {
+          return response.data;
+        }
+
+        // Case 2: The backend sent the object directly
+        return response;
+      })
+    );
+  }
+
+  // 4. POST Apply
+  applyForLoan(data: LoanApplicationDto): Observable<ApiResponseDto<any>> {
+    return this.http.post<ApiResponseDto<any>>(`${this.apiUrl}/apply`, data, { headers: this.getHeaders() });
   }
 }

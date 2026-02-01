@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { Auth } from '../../core/services/auth';
+import { AuthService } from '../../core/services/auth';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -13,7 +13,7 @@ import { Auth } from '../../core/services/auth';
 export class UserDashboard implements OnInit {
   userName: string = 'User';
 
-  constructor(private auth: Auth) {}
+  constructor(private auth: AuthService) { }
 
   ngOnInit() {
     const user = this.auth.getCurrentUser();

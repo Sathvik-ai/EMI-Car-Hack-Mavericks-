@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Auth } from '../../../core/services/auth';
+import { AuthService } from '../../../core/services/auth';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -12,17 +12,17 @@ export class Navbar implements OnInit {
   isLoggedIn$!: Observable<boolean>;
   userName: string = 'Profile';
 
-  constructor(private auth: Auth) {}
+  constructor(private auth: AuthService) { }
 
   ngOnInit() {
     this.isLoggedIn$ = this.auth.isLoggedIn$;
-    
+
     // Subscribe to changes or just check periodically/single time
     this.isLoggedIn$.subscribe(loggedIn => {
-        if (loggedIn) {
-            const user = this.auth.getCurrentUser();
-            this.userName = user && user.name ? user.name.split(' ')[0] : 'Profile';
-        }
+      if (loggedIn) {
+        const user = this.auth.getCurrentUser();
+        this.userName = user && user.name ? user.name.split(' ')[0] : 'Profile';
+      }
     });
   }
 
